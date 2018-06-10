@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.project.dao.YsInformDao">
+    
+	<sql id="ysInformColumns">
+		a.id AS "id",
+		a.pro_id AS "proId",
+		a.inform_name AS "informName",
+		a.inform_time AS "informTime",
+		a.content AS "content",
+		a.create_id AS "createId"
+	</sql>
+	
+	<sql id="ysInformJoins">
+	</sql>
+	
+    
+	<select id="get" resultType="YsInform" >
+		SELECT 
+			<include refid="ysInformColumns"/>
+		FROM ys_inform a
+		<include refid="ysInformJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="YsInform" >
+		SELECT 
+			<include refid="ysInformColumns"/>
+		FROM ys_inform a
+		<include refid="ysInformJoins"/>
+		<where>
+			
+			<if test="id != null and id != ''">
+				AND a.id = #{id}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="YsInform" >
+		SELECT 
+			<include refid="ysInformColumns"/>
+		FROM ys_inform a
+		<include refid="ysInformJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO ys_inform(
+			pro_id,
+			inform_name,
+			inform_time,
+			content,
+			create_id
+		) VALUES (
+			#{proId},
+			#{informName},
+			#{informTime},
+			#{content},
+			#{createId}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE ys_inform SET 	
+			pro_id = #{proId},
+			inform_name = #{informName},
+			inform_time = #{informTime},
+			content = #{content},
+			create_id = #{createId}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM ys_inform
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE ys_inform SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="YsInform" statementType="STATEMENT">
+		select * FROM ys_inform  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

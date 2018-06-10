@@ -1,0 +1,1563 @@
+<%@ page contentType="text/html;charset=UTF-8" %>
+<%@ include file="/webpage/include/taglib.jsp"%>
+<html>
+<head>
+	<title>项目试卷管理</title>
+	<meta name="decorator" content="default"/>
+	<script type="text/javascript">
+		var validateForm;
+		function doSubmit(){//回调函数，在编辑和保存动作时，供openDialog调用提交表单。
+		  if(validateForm.form()){
+			  $("#inputForm").submit();
+			  return true;
+		  }
+	
+		  return false;
+		}
+		$(document).ready(function() {
+			validateForm = $("#inputForm").validate({
+				submitHandler: function(form){
+					loading('正在提交，请稍等...');
+					form.submit();
+				},
+				errorContainer: "#messageBox",
+				errorPlacement: function(error, element) {
+					$("#messageBox").text("输入有误，请先更正。");
+					if (element.is(":checkbox")||element.is(":radio")||element.parent().is(".input-append")){
+						error.appendTo(element.parent().parent());
+					} else {
+						error.insertAfter(element);
+					}
+				}
+			});
+			
+					laydate({
+			            elem: '#startTime', //目标元素。由于laydate.js封装了一个轻量级的选择器引擎，因此elem还允许你传入class、tag但必须按照这种方式 '#id .class'
+			            event: 'focus' //响应事件。如果没有传入event，则按照默认的click
+			        });
+					laydate({
+			            elem: '#endTime', //目标元素。由于laydate.js封装了一个轻量级的选择器引擎，因此elem还允许你传入class、tag但必须按照这种方式 '#id .class'
+			            event: 'focus' //响应事件。如果没有传入event，则按照默认的click
+			        });
+		});
+	</script>
+</head>
+<body class="hideScroll">
+		<form:form id="inputForm" modelAttribute="ysProPaper" action="${ctx}/propaper/ysProPaper/save" method="post" class="form-horizontal">
+		<form:hidden path="id"/>
+		<sys:message content="${message}"/>	
+		<table class="table table-bordered  table-condensed dataTables-example dataTable no-footer">
+		   <tbody>
+				<tr>
+					<td class="width-15 active"><label class="pull-right"><font color="red">*</font>考试名称：</label></td>
+					<td class="width-35">
+						<form:input path="testName" htmlEscape="false"    class="form-control required"/>
+					</td>
+					<td class="width-15 active"><label class="pull-right"><font color="red">*</font>考试须知：</label></td>
+					<td class="width-35">
+						<form:textarea path="describes" htmlEscape="false"  rows="3"  class="form-control required"/>
+					</td>
+				</tr>
+				<tr>
+					<td class="width-15 active"><label class="pull-right"><font color="red">*</font>考试开始时间：</label></td>
+					<td class="width-35">
+						<input id="startTime" name="startTime" type="text" maxlength="20" class="laydate-icon form-control layer-date required"
+							value="<fmt:formatDate value="${ysProPaper.startTime}" pattern="yyyy-MM-dd HH:mm:ss"/>"/>
+					</td>
+					<td class="width-15 active"><label class="pull-right"><font color="red">*</font>考试结束时间：</label></td>
+					<td class="width-35">
+						<input id="endTime" name="endTime" type="text" maxlength="20" class="laydate-icon form-control layer-date required"
+							value="<fmt:formatDate value="${ysProPaper.endTime}" pattern="yyyy-MM-dd HH:mm:ss"/>"/>
+					</td>
+				</tr>
+				<tr>
+					<td class="width-15 active"><label class="pull-right"><font color="red">*</font>考生考试的次数限制：</label></td>
+					<td class="width-35">
+						<form:input path="testNumber" htmlEscape="false"    class="form-control required"/>
+					</td>
+					<td class="width-15 active"><label class="pull-right"><font color="red">*</font>考试状态：</label></td>
+					<td class="width-35">
+						<form:select path="paperState" class="form-control required">
+							<form:option value="" label=""></form:option>
+							<form:option value="1" label="启用"></form:option>
+							<form:option value="2" label="禁用"></form:option>
+						</form:select>
+					</td>
+				</tr>
+				<tr>
+					<td class="width-15 active"><label class="pull-right"><font color="red">*</font>答卷时长：</label></td>
+					<td class="width-35">
+						<form:input path="testTime" htmlEscape="false"    class="form-control required"/>
+					</td>
+					<td class="width-15 active"><label class="pull-right"><font color="red">*</font>考试学分：</label></td>
+					<td class="width-35">
+						<form:input path="testScore" htmlEscape="false"    class="form-control required"/>
+					</td>
+				</tr>
+				<tr>
+					
+					<td class="width-15 active"><label class="pull-right"><font color="red">*</font> 考试分类：</label></td>
+					<td class="width-35">
+						<form:input path="papClassId" htmlEscape="false"    class="form-control required"/>
+					</td>
+					<td class="width-15 active"><label class="pull-right"><font color="red">*</font>所属部门：</label></td>
+					<td class="width-35">
+						<form:select path="depId" class="form-control required">
+							<form:option value="" label=""></form:option>
+							<form:options items="${fns:getYsDepartmentList()}" itemLabel="depName" itemValue="id" htmlEscape="false"/>
+						</form:select>
+					</td>
+				</tr>
+		 	</tbody>
+		</table>
+	</form:form>
+	    <div id="base" class="">
+
+      <!-- Unnamed (矩形) -->
+      <div id="u12371" class="ax_default shape">
+        <div id="u12371_div" class=""></div>
+        <!-- Unnamed () -->
+        <div id="u12372" class="text" style="display: none; visibility: hidden">
+          <p><span></span></p>
+        </div>
+      </div>
+
+      <!-- Unnamed (矩形) -->
+      <div id="u12373" class="ax_default heading_1">
+        <div id="u12373_div" class=""></div>
+        <!-- Unnamed () -->
+        <div id="u12374" class="text" style="visibility: visible;">
+          <p><span>原水在线教育平台</span></p>
+        </div>
+      </div>
+
+      <!-- Unnamed (矩形) -->
+      <div id="u12375" class="ax_default shape">
+        <div id="u12375_div" class=""></div>
+        <!-- Unnamed () -->
+        <div id="u12376" class="text" style="display: none; visibility: hidden">
+          <p><span></span></p>
+        </div>
+      </div>
+
+      <!-- Unnamed (矩形) -->
+      <div id="u12377" class="ax_default paragraph">
+        <div id="u12377_div" class=""></div>
+        <!-- Unnamed () -->
+        <div id="u12378" class="text" style="visibility: visible;">
+          <p><span>试卷管理</span></p>
+        </div>
+      </div>
+
+      <!-- Unnamed (矩形) -->
+      <div id="u12379" class="ax_default paragraph">
+        <div id="u12379_div" class=""></div>
+        <!-- Unnamed () -->
+        <div id="u12380" class="text" style="visibility: visible;">
+          <p><span>试卷管理</span></p>
+        </div>
+      </div>
+
+      <!-- Unnamed (矩形) -->
+      <div id="u12381" class="ax_default shape">
+        <div id="u12381_div" class=""></div>
+        <!-- Unnamed () -->
+        <div id="u12382" class="text" style="display: none; visibility: hidden">
+          <p><span></span></p>
+        </div>
+      </div>
+
+      <!-- Unnamed (矩形) -->
+      <div id="u12383" class="ax_default paragraph">
+        <div id="u12383_div" class=""></div>
+        <!-- Unnamed () -->
+        <div id="u12384" class="text" style="visibility: visible;">
+          <p><span>添加试卷</span></p>
+        </div>
+      </div>
+
+      <!-- Unnamed (水平线) -->
+      <div id="u12385" class="ax_default horizontal_line">
+        <img id="u12385_img" class="img " src="images/学习资料-课件管理/u595.png"/>
+        <!-- Unnamed () -->
+        <div id="u12386" class="text" style="display: none; visibility: hidden">
+          <p><span></span></p>
+        </div>
+      </div>
+
+      <!-- Unnamed (矩形) -->
+      <div id="u12387" class="ax_default shape">
+        <div id="u12387_div" class=""></div>
+        <!-- Unnamed () -->
+        <div id="u12388" class="text" style="display: none; visibility: hidden">
+          <p><span></span></p>
+        </div>
+      </div>
+
+      <!-- Unnamed (矩形) -->
+      <div id="u12389" class="ax_default paragraph">
+        <div id="u12389_div" class=""></div>
+        <!-- Unnamed () -->
+        <div id="u12390" class="text" style="display: none; visibility: hidden">
+          <p><span></span></p>
+        </div>
+      </div>
+
+      <!-- Unnamed (矩形) -->
+      <div id="u12391" class="ax_default paragraph">
+        <div id="u12391_div" class=""></div>
+        <!-- Unnamed () -->
+        <div id="u12392" class="text" style="visibility: visible;">
+          <p><span>试卷分类</span></p>
+        </div>
+      </div>
+
+      <!-- Unnamed (下拉列表框) -->
+      <div id="u12393" class="ax_default droplist">
+        <select id="u12393_input">
+          <option value="英语考试">英语考试</option>
+          <option value="财务会计">财务会计</option>
+          <option value="公务员考试">公务员考试</option>
+        </select>
+      </div>
+
+      <!-- Unnamed (矩形) -->
+      <div id="u12394" class="ax_default paragraph">
+        <div id="u12394_div" class=""></div>
+        <!-- Unnamed () -->
+        <div id="u12395" class="text" style="visibility: visible;">
+          <p><span>试卷名称</span><span style="color:#FF0000;">*</span></p>
+        </div>
+      </div>
+
+      <!-- Unnamed (文本框) -->
+      <div id="u12396" class="ax_default text_field">
+        <input id="u12396_input" type="text" value=""/>
+      </div>
+
+      <!-- Unnamed (矩形) -->
+      <div id="u12397" class="ax_default paragraph">
+        <div id="u12397_div" class=""></div>
+        <!-- Unnamed () -->
+        <div id="u12398" class="text" style="visibility: visible;">
+          <p><span>试卷总分</span></p>
+        </div>
+      </div>
+
+      <!-- Unnamed (文本框) -->
+      <div id="u12399" class="ax_default text_field">
+        <input id="u12399_input" type="text" value=""/>
+      </div>
+
+      <!-- Unnamed (矩形) -->
+      <div id="u12400" class="ax_default paragraph">
+        <div id="u12400_div" class=""></div>
+        <!-- Unnamed () -->
+        <div id="u12401" class="text" style="visibility: visible;">
+          <p><span>及格分数</span></p>
+        </div>
+      </div>
+
+      <!-- Unnamed (文本框) -->
+      <div id="u12402" class="ax_default text_field">
+        <input id="u12402_input" type="text" value=""/>
+      </div>
+
+      <!-- Unnamed (矩形) -->
+      <div id="u12403" class="ax_default paragraph">
+        <div id="u12403_div" class=""></div>
+        <!-- Unnamed () -->
+        <div id="u12404" class="text" style="visibility: visible;">
+          <p><span>自动累加所有试题分数</span></p>
+        </div>
+      </div>
+
+      <!-- Unnamed (矩形) -->
+      <div id="u12405" class="ax_default paragraph">
+        <div id="u12405_div" class=""></div>
+        <!-- Unnamed () -->
+        <div id="u12406" class="text" style="visibility: visible;">
+          <p><span>所属分组</span><span style="color:#FF0000;">*</span></p>
+        </div>
+      </div>
+
+      <!-- Unnamed (下拉列表框) -->
+      <div id="u12407" class="ax_default droplist">
+        <select id="u12407_input">
+        </select>
+      </div>
+
+      <!-- Unnamed (矩形) -->
+      <div id="u12408" class="ax_default paragraph">
+        <div id="u12408_div" class=""></div>
+        <!-- Unnamed () -->
+        <div id="u12409" class="text" style="visibility: visible;">
+          <p><span>试卷状态</span></p>
+        </div>
+      </div>
+
+      <!-- Unnamed (下拉列表框) -->
+      <div id="u12410" class="ax_default droplist">
+        <select id="u12410_input">
+          <option value="可用">可用</option>
+          <option value="禁用">禁用</option>
+        </select>
+      </div>
+
+      <!-- Unnamed (矩形) -->
+      <div id="u12411" class="ax_default shape">
+        <div id="u12411_div" class=""></div>
+        <!-- Unnamed () -->
+        <div id="u12412" class="text" style="display: none; visibility: hidden">
+          <p><span></span></p>
+        </div>
+      </div>
+
+      <!-- Unnamed (矩形) -->
+      <div id="u12413" class="ax_default shape">
+        <div id="u12413_div" class=""></div>
+        <!-- Unnamed () -->
+        <div id="u12414" class="text" style="visibility: visible;">
+          <p><span>添加试题描述</span></p>
+        </div>
+      </div>
+
+      <!-- Unnamed (图片) -->
+      <div id="u12415" class="ax_default image">
+        <img id="u12415_img" class="img " src="images/添加考试/u3546.png"/>
+        <!-- Unnamed () -->
+        <div id="u12416" class="text" style="display: none; visibility: hidden">
+          <p><span></span></p>
+        </div>
+      </div>
+
+      <!-- Unnamed (矩形) -->
+      <div id="u12417" class="ax_default paragraph">
+        <div id="u12417_div" class=""></div>
+        <!-- Unnamed () -->
+        <div id="u12418" class="text" style="visibility: visible;">
+          <p><span>排序</span></p>
+        </div>
+      </div>
+
+      <!-- Unnamed (矩形) -->
+      <div id="u12419" class="ax_default paragraph">
+        <div id="u12419_div" class=""></div>
+        <!-- Unnamed () -->
+        <div id="u12420" class="text" style="visibility: visible;">
+          <p><span>试题描述</span></p>
+        </div>
+      </div>
+
+      <!-- Unnamed (矩形) -->
+      <div id="u12421" class="ax_default shape">
+        <div id="u12421_div" class=""></div>
+        <!-- Unnamed () -->
+        <div id="u12422" class="text" style="display: none; visibility: hidden">
+          <p><span></span></p>
+        </div>
+      </div>
+
+      <!-- Unnamed (矩形) -->
+      <div id="u12423" class="ax_default paragraph">
+        <div id="u12423_div" class=""></div>
+        <!-- Unnamed () -->
+        <div id="u12424" class="text" style="visibility: visible;">
+          <p><span>最后使用</span></p>
+        </div>
+      </div>
+
+      <!-- Unnamed (矩形) -->
+      <div id="u12425" class="ax_default paragraph">
+        <div id="u12425_div" class=""></div>
+        <!-- Unnamed () -->
+        <div id="u12426" class="text" style="visibility: visible;">
+          <p><span>分数/题</span></p>
+        </div>
+      </div>
+
+      <!-- Unnamed (矩形) -->
+      <div id="u12427" class="ax_default paragraph">
+        <div id="u12427_div" class=""></div>
+        <!-- Unnamed () -->
+        <div id="u12428" class="text" style="visibility: visible;">
+          <p><span>操作</span></p>
+        </div>
+      </div>
+
+      <!-- Unnamed (文本框) -->
+      <div id="u12429" class="ax_default text_field">
+        <input id="u12429_input" type="text" value=""/>
+      </div>
+
+      <!-- Unnamed (提交按钮) -->
+      <div id="u12430" class="ax_default html_button">
+        <input id="u12430_input" type="submit" value="选择试题"/>
+      </div>
+
+      <!-- Unnamed (提交按钮) -->
+      <div id="u12431" class="ax_default html_button">
+        <input id="u12431_input" type="submit" value="随机抽题"/>
+      </div>
+
+      <!-- Unnamed (提交按钮) -->
+      <div id="u12432" class="ax_default html_button">
+        <input id="u12432_input" type="submit" value="随机出卷"/>
+      </div>
+
+      <!-- Unnamed (矩形) -->
+      <div id="u12433" class="ax_default paragraph">
+        <div id="u12433_div" class=""></div>
+        <!-- Unnamed () -->
+        <div id="u12434" class="text" style="visibility: visible;">
+          <p><span>1</span></p>
+        </div>
+      </div>
+
+      <!-- Unnamed (矩形) -->
+      <div id="u12435" class="ax_default shape">
+        <div id="u12435_div" class=""></div>
+        <!-- Unnamed () -->
+        <div id="u12436" class="text" style="visibility: visible;">
+          <p><span>删除</span></p>
+        </div>
+      </div>
+
+      <!-- Unnamed (文本框) -->
+      <div id="u12437" class="ax_default text_field">
+        <input id="u12437_input" type="text" value=""/>
+      </div>
+
+      <!-- Unnamed (矩形) -->
+      <div id="u12438" class="ax_default shape">
+        <div id="u12438_div" class=""></div>
+        <!-- Unnamed () -->
+        <div id="u12439" class="text" style="display: none; visibility: hidden">
+          <p><span></span></p>
+        </div>
+      </div>
+
+      <!-- Unnamed (文本框) -->
+      <div id="u12440" class="ax_default text_field">
+        <input id="u12440_input" type="text" value=""/>
+      </div>
+
+      <!-- Unnamed (提交按钮) -->
+      <div id="u12441" class="ax_default html_button">
+        <input id="u12441_input" type="submit" value="选择试题"/>
+      </div>
+
+      <!-- Unnamed (提交按钮) -->
+      <div id="u12442" class="ax_default html_button">
+        <input id="u12442_input" type="submit" value="随机抽题"/>
+      </div>
+
+      <!-- Unnamed (提交按钮) -->
+      <div id="u12443" class="ax_default html_button">
+        <input id="u12443_input" type="submit" value="随机出卷"/>
+      </div>
+
+      <!-- Unnamed (矩形) -->
+      <div id="u12444" class="ax_default paragraph">
+        <div id="u12444_div" class=""></div>
+        <!-- Unnamed () -->
+        <div id="u12445" class="text" style="visibility: visible;">
+          <p><span>1</span></p>
+        </div>
+      </div>
+
+      <!-- Unnamed (矩形) -->
+      <div id="u12446" class="ax_default shape">
+        <div id="u12446_div" class=""></div>
+        <!-- Unnamed () -->
+        <div id="u12447" class="text" style="visibility: visible;">
+          <p><span>删除</span></p>
+        </div>
+      </div>
+
+      <!-- Unnamed (文本框) -->
+      <div id="u12448" class="ax_default text_field">
+        <input id="u12448_input" type="text" value=""/>
+      </div>
+
+      <!-- Unnamed (矩形) -->
+      <div id="u12449" class="ax_default shape">
+        <div id="u12449_div" class=""></div>
+        <!-- Unnamed () -->
+        <div id="u12450" class="text" style="display: none; visibility: hidden">
+          <p><span></span></p>
+        </div>
+      </div>
+
+      <!-- Unnamed (文本框) -->
+      <div id="u12451" class="ax_default text_field">
+        <input id="u12451_input" type="text" value=""/>
+      </div>
+
+      <!-- Unnamed (提交按钮) -->
+      <div id="u12452" class="ax_default html_button">
+        <input id="u12452_input" type="submit" value="选择试题"/>
+      </div>
+
+      <!-- Unnamed (提交按钮) -->
+      <div id="u12453" class="ax_default html_button">
+        <input id="u12453_input" type="submit" value="随机抽题"/>
+      </div>
+
+      <!-- Unnamed (提交按钮) -->
+      <div id="u12454" class="ax_default html_button">
+        <input id="u12454_input" type="submit" value="随机出卷"/>
+      </div>
+
+      <!-- Unnamed (矩形) -->
+      <div id="u12455" class="ax_default paragraph">
+        <div id="u12455_div" class=""></div>
+        <!-- Unnamed () -->
+        <div id="u12456" class="text" style="visibility: visible;">
+          <p><span>1</span></p>
+        </div>
+      </div>
+
+      <!-- Unnamed (矩形) -->
+      <div id="u12457" class="ax_default shape">
+        <div id="u12457_div" class=""></div>
+        <!-- Unnamed () -->
+        <div id="u12458" class="text" style="visibility: visible;">
+          <p><span>删除</span></p>
+        </div>
+      </div>
+
+      <!-- Unnamed (文本框) -->
+      <div id="u12459" class="ax_default text_field">
+        <input id="u12459_input" type="text" value=""/>
+      </div>
+
+      <!-- Unnamed (矩形) -->
+      <div id="u12460" class="ax_default shape">
+        <div id="u12460_div" class=""></div>
+        <!-- Unnamed () -->
+        <div id="u12461" class="text" style="display: none; visibility: hidden">
+          <p><span></span></p>
+        </div>
+      </div>
+
+      <!-- Unnamed (文本框) -->
+      <div id="u12462" class="ax_default text_field">
+        <input id="u12462_input" type="text" value=""/>
+      </div>
+
+      <!-- Unnamed (提交按钮) -->
+      <div id="u12463" class="ax_default html_button">
+        <input id="u12463_input" type="submit" value="选择试题"/>
+      </div>
+
+      <!-- Unnamed (提交按钮) -->
+      <div id="u12464" class="ax_default html_button">
+        <input id="u12464_input" type="submit" value="随机抽题"/>
+      </div>
+
+      <!-- Unnamed (提交按钮) -->
+      <div id="u12465" class="ax_default html_button">
+        <input id="u12465_input" type="submit" value="随机出卷"/>
+      </div>
+
+      <!-- Unnamed (矩形) -->
+      <div id="u12466" class="ax_default paragraph">
+        <div id="u12466_div" class=""></div>
+        <!-- Unnamed () -->
+        <div id="u12467" class="text" style="visibility: visible;">
+          <p><span>1</span></p>
+        </div>
+      </div>
+
+      <!-- Unnamed (矩形) -->
+      <div id="u12468" class="ax_default shape">
+        <div id="u12468_div" class=""></div>
+        <!-- Unnamed () -->
+        <div id="u12469" class="text" style="visibility: visible;">
+          <p><span>删除</span></p>
+        </div>
+      </div>
+
+      <!-- Unnamed (文本框) -->
+      <div id="u12470" class="ax_default text_field">
+        <input id="u12470_input" type="text" value=""/>
+      </div>
+
+      <!-- Unnamed (矩形) -->
+      <div id="u12471" class="ax_default shape">
+        <div id="u12471_div" class=""></div>
+        <!-- Unnamed () -->
+        <div id="u12472" class="text" style="visibility: visible;">
+          <p><span>保存并关闭</span></p>
+        </div>
+      </div>
+
+      <!-- Unnamed (矩形) -->
+      <div id="u12473" class="ax_default shape">
+        <div id="u12473_div" class=""></div>
+        <!-- Unnamed () -->
+        <div id="u12474" class="text" style="visibility: visible;">
+          <p><span>保存</span></p>
+        </div>
+      </div>
+
+      <!-- Unnamed (矩形) -->
+      <div id="u12475" class="ax_default paragraph">
+        <div id="u12475_div" class=""></div>
+        <!-- Unnamed () -->
+        <div id="u12476" class="text" style="visibility: visible;">
+          <p><span>选择题型并输入问题描述</span></p>
+        </div>
+      </div>
+
+      <!-- Unnamed (矩形) -->
+      <div id="u12477" class="ax_default paragraph">
+        <div id="u12477_div" class=""></div>
+        <!-- Unnamed () -->
+        <div id="u12478" class="text" style="visibility: visible;">
+          <p><span>选择题型并输入问题描述</span></p>
+        </div>
+      </div>
+
+      <!-- Unnamed (矩形) -->
+      <div id="u12479" class="ax_default paragraph">
+        <div id="u12479_div" class=""></div>
+        <!-- Unnamed () -->
+        <div id="u12480" class="text" style="visibility: visible;">
+          <p><span>选择题型并输入问题描述</span></p>
+        </div>
+      </div>
+
+      <!-- Unnamed (矩形) -->
+      <div id="u12481" class="ax_default paragraph">
+        <div id="u12481_div" class=""></div>
+        <!-- Unnamed () -->
+        <div id="u12482" class="text" style="visibility: visible;">
+          <p><span>选择题型并输入问题描述</span></p>
+        </div>
+      </div>
+
+      <!-- Unnamed (矩形) -->
+      <div id="u12483" class="ax_default paragraph">
+        <div id="u12483_div" class=""></div>
+        <!-- Unnamed () -->
+        <div id="u12484" class="text" style="visibility: visible;">
+          <p><span>出卷计划</span></p>
+        </div>
+      </div>
+
+      <!-- Unnamed (动态面板) -->
+      <div id="u12485" class="ax_default">
+        <div id="u12485_state0" class="panel_state" data-label="状态1">
+          <div id="u12485_state0_content" class="panel_state_content">
+
+            <!-- Unnamed (图片) -->
+            <div id="u12486" class="ax_default image">
+              <img id="u12486_img" class="img " src="images/学习资料-课件管理/u817.png"/>
+              <!-- Unnamed () -->
+              <div id="u12487" class="text" style="display: none; visibility: hidden">
+                <p><span></span></p>
+              </div>
+            </div>
+
+            <!-- Unnamed (矩形) -->
+            <div id="u12488" class="ax_default paragraph">
+              <div id="u12488_div" class=""></div>
+              <!-- Unnamed () -->
+              <div id="u12489" class="text" style="visibility: visible;">
+                <p><span>首页</span></p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 试题描述 (动态面板) -->
+      <div id="u12490" class="ax_default ax_default_hidden" data-label="试题描述" style="display: none; visibility: hidden">
+        <div id="u12490_state0" class="panel_state" data-label="试题选择">
+          <div id="u12490_state0_content" class="panel_state_content">
+
+            <!-- Unnamed (矩形) -->
+            <div id="u12491" class="ax_default shape">
+              <div id="u12491_div" class=""></div>
+              <!-- Unnamed () -->
+              <div id="u12492" class="text" style="display: none; visibility: hidden">
+                <p><span></span></p>
+              </div>
+            </div>
+
+            <!-- Unnamed (矩形) -->
+            <div id="u12493" class="ax_default shape">
+              <div id="u12493_div" class=""></div>
+              <!-- Unnamed () -->
+              <div id="u12494" class="text" style="display: none; visibility: hidden">
+                <p><span></span></p>
+              </div>
+            </div>
+
+            <!-- Unnamed (矩形) -->
+            <div id="u12495" class="ax_default paragraph">
+              <div id="u12495_div" class=""></div>
+              <!-- Unnamed () -->
+              <div id="u12496" class="text" style="visibility: visible;">
+                <p><span>试题难度</span></p>
+              </div>
+            </div>
+
+            <!-- Unnamed (下拉列表框) -->
+            <div id="u12497" class="ax_default droplist">
+              <select id="u12497_input">
+                <option value="简单">简单</option>
+                <option value="一般">一般</option>
+                <option value="难">难</option>
+              </select>
+            </div>
+
+            <!-- Unnamed (矩形) -->
+            <div id="u12498" class="ax_default paragraph">
+              <div id="u12498_div" class=""></div>
+              <!-- Unnamed () -->
+              <div id="u12499" class="text" style="visibility: visible;">
+                <p><span>试题分类</span></p>
+              </div>
+            </div>
+
+            <!-- Unnamed (下拉列表框) -->
+            <div id="u12500" class="ax_default droplist">
+              <select id="u12500_input">
+                <option value="英语考试">英语考试</option>
+                <option value="财务会计">财务会计</option>
+                <option value="公务员考试">公务员考试</option>
+              </select>
+            </div>
+
+            <!-- Unnamed (矩形) -->
+            <div id="u12501" class="ax_default paragraph">
+              <div id="u12501_div" class=""></div>
+              <!-- Unnamed () -->
+              <div id="u12502" class="text" style="visibility: visible;">
+                <p><span>试题编号</span></p>
+              </div>
+            </div>
+
+            <!-- Unnamed (文本框) -->
+            <div id="u12503" class="ax_default text_field">
+              <input id="u12503_input" type="text" value=""/>
+            </div>
+
+            <!-- Unnamed (矩形) -->
+            <div id="u12504" class="ax_default paragraph">
+              <div id="u12504_div" class=""></div>
+              <!-- Unnamed () -->
+              <div id="u12505" class="text" style="visibility: visible;">
+                <p><span>试题内容</span></p>
+              </div>
+            </div>
+
+            <!-- Unnamed (文本框) -->
+            <div id="u12506" class="ax_default text_field">
+              <input id="u12506_input" type="text" value=""/>
+            </div>
+
+            <!-- Unnamed (矩形) -->
+            <div id="u12507" class="ax_default paragraph">
+              <div id="u12507_div" class=""></div>
+              <!-- Unnamed () -->
+              <div id="u12508" class="text" style="visibility: visible;">
+                <p><span>~</span></p>
+              </div>
+            </div>
+
+            <!-- Unnamed (矩形) -->
+            <div id="u12509" class="ax_default paragraph">
+              <div id="u12509_div" class=""></div>
+              <!-- Unnamed () -->
+              <div id="u12510" class="text" style="visibility: visible;">
+                <p><span>创建时间</span></p>
+              </div>
+            </div>
+
+            <!-- Unnamed (文本框) -->
+            <div id="u12511" class="ax_default text_field">
+              <input id="u12511_input" type="text" value=""/>
+            </div>
+
+            <!-- Unnamed (图片) -->
+            <div id="u12512" class="ax_default image">
+              <img id="u12512_img" class="img " src="images/学习资料-课件管理/u622.png"/>
+              <!-- Unnamed () -->
+              <div id="u12513" class="text" style="display: none; visibility: hidden">
+                <p><span></span></p>
+              </div>
+            </div>
+
+            <!-- Unnamed (文本框) -->
+            <div id="u12514" class="ax_default text_field">
+              <input id="u12514_input" type="text" value=""/>
+            </div>
+
+            <!-- Unnamed (图片) -->
+            <div id="u12515" class="ax_default image">
+              <img id="u12515_img" class="img " src="images/学习资料-课件管理/u622.png"/>
+              <!-- Unnamed () -->
+              <div id="u12516" class="text" style="display: none; visibility: hidden">
+                <p><span></span></p>
+              </div>
+            </div>
+
+            <!-- Unnamed (文本框) -->
+            <div id="u12517" class="ax_default text_field">
+              <input id="u12517_input" type="text" value=""/>
+            </div>
+
+            <!-- Unnamed (提交按钮) -->
+            <div id="u12518" class="ax_default html_button">
+              <input id="u12518_input" type="submit" value="搜索"/>
+            </div>
+
+            <!-- Unnamed (提交按钮) -->
+            <div id="u12519" class="ax_default html_button">
+              <input id="u12519_input" type="submit" value="重置"/>
+            </div>
+
+            <!-- Unnamed (矩形) -->
+            <div id="u12520" class="ax_default paragraph">
+              <div id="u12520_div" class=""></div>
+              <!-- Unnamed () -->
+              <div id="u12521" class="text" style="visibility: visible;">
+                <p><span>试题类型</span></p>
+              </div>
+            </div>
+
+            <!-- Unnamed (下拉列表框) -->
+            <div id="u12522" class="ax_default droplist">
+              <select id="u12522_input">
+                <option value="单选题">单选题</option>
+                <option value="多选题">多选题</option>
+                <option value="判断题">判断题</option>
+                <option value="填空题">填空题</option>
+                <option value="简答题">简答题</option>
+              </select>
+            </div>
+
+            <!-- Unnamed (下拉列表框) -->
+            <div id="u12523" class="ax_default droplist">
+              <select id="u12523_input">
+                <option value="简单">简单</option>
+                <option value="一般">一般</option>
+                <option value="难">难</option>
+              </select>
+            </div>
+
+            <!-- Unnamed (矩形) -->
+            <div id="u12524" class="ax_default paragraph">
+              <div id="u12524_div" class=""></div>
+              <!-- Unnamed () -->
+              <div id="u12525" class="text" style="visibility: visible;">
+                <p><span>题库</span></p>
+              </div>
+            </div>
+
+            <!-- Unnamed (矩形) -->
+            <div id="u12526" class="ax_default paragraph">
+              <div id="u12526_div" class=""></div>
+              <!-- Unnamed () -->
+              <div id="u12527" class="text" style="visibility: visible;">
+                <p><span>创建人</span></p>
+              </div>
+            </div>
+
+            <!-- Unnamed (矩形) -->
+            <div id="u12528" class="ax_default heading_1">
+              <div id="u12528_div" class=""></div>
+              <!-- Unnamed () -->
+              <div id="u12529" class="text" style="visibility: visible;">
+                <p><span>选择试题</span></p>
+              </div>
+            </div>
+
+            <!-- Unnamed (图片) -->
+            <div id="u12530" class="ax_default image">
+              <img id="u12530_img" class="img " src="images/添加课程/u2744.png"/>
+              <!-- Unnamed () -->
+              <div id="u12531" class="text" style="display: none; visibility: hidden">
+                <p><span></span></p>
+              </div>
+            </div>
+
+            <!-- Unnamed (复选框) -->
+            <div id="u12532" class="ax_default checkbox">
+              <label for="u12532_input">
+                <!-- Unnamed () -->
+                <div id="u12533" class="text" style="display: none; visibility: hidden">
+                  <p><span></span></p>
+                </div>
+              </label>
+              <input id="u12532_input" type="checkbox" value="checkbox" checked/>
+            </div>
+
+            <!-- Unnamed (复选框) -->
+            <div id="u12534" class="ax_default checkbox">
+              <label for="u12534_input">
+                <!-- Unnamed () -->
+                <div id="u12535" class="text" style="display: none; visibility: hidden">
+                  <p><span></span></p>
+                </div>
+              </label>
+              <input id="u12534_input" type="checkbox" value="checkbox" checked/>
+            </div>
+
+            <!-- Unnamed (复选框) -->
+            <div id="u12536" class="ax_default checkbox">
+              <label for="u12536_input">
+                <!-- Unnamed () -->
+                <div id="u12537" class="text" style="display: none; visibility: hidden">
+                  <p><span></span></p>
+                </div>
+              </label>
+              <input id="u12536_input" type="checkbox" value="checkbox" checked/>
+            </div>
+
+            <!-- Unnamed (复选框) -->
+            <div id="u12538" class="ax_default checkbox">
+              <label for="u12538_input">
+                <!-- Unnamed () -->
+                <div id="u12539" class="text" style="display: none; visibility: hidden">
+                  <p><span></span></p>
+                </div>
+              </label>
+              <input id="u12538_input" type="checkbox" value="checkbox" checked/>
+            </div>
+
+            <!-- Unnamed (复选框) -->
+            <div id="u12540" class="ax_default checkbox">
+              <label for="u12540_input">
+                <!-- Unnamed () -->
+                <div id="u12541" class="text" style="display: none; visibility: hidden">
+                  <p><span></span></p>
+                </div>
+              </label>
+              <input id="u12540_input" type="checkbox" value="checkbox" checked/>
+            </div>
+
+            <!-- Unnamed (矩形) -->
+            <div id="u12542" class="ax_default paragraph">
+              <div id="u12542_div" class=""></div>
+              <!-- Unnamed () -->
+              <div id="u12543" class="text" style="visibility: visible;">
+                <p><span>编号</span></p>
+              </div>
+            </div>
+
+            <!-- Unnamed (矩形) -->
+            <div id="u12544" class="ax_default paragraph">
+              <div id="u12544_div" class=""></div>
+              <!-- Unnamed () -->
+              <div id="u12545" class="text" style="visibility: visible;">
+                <p><span>题型</span></p>
+              </div>
+            </div>
+
+            <!-- Unnamed (矩形) -->
+            <div id="u12546" class="ax_default paragraph">
+              <div id="u12546_div" class=""></div>
+              <!-- Unnamed () -->
+              <div id="u12547" class="text" style="visibility: visible;">
+                <p><span>状态</span></p>
+              </div>
+            </div>
+
+            <!-- Unnamed (矩形) -->
+            <div id="u12548" class="ax_default paragraph">
+              <div id="u12548_div" class=""></div>
+              <!-- Unnamed () -->
+              <div id="u12549" class="text" style="visibility: visible;">
+                <p><span>试题内容</span></p>
+              </div>
+            </div>
+
+            <!-- Unnamed (矩形) -->
+            <div id="u12550" class="ax_default paragraph">
+              <div id="u12550_div" class=""></div>
+              <!-- Unnamed () -->
+              <div id="u12551" class="text" style="visibility: visible;">
+                <p><span>创建人</span></p>
+              </div>
+            </div>
+
+            <!-- Unnamed (矩形) -->
+            <div id="u12552" class="ax_default paragraph">
+              <div id="u12552_div" class=""></div>
+              <!-- Unnamed () -->
+              <div id="u12553" class="text" style="visibility: visible;">
+                <p><span>最后更新</span></p>
+              </div>
+            </div>
+
+            <!-- Unnamed (矩形) -->
+            <div id="u12554" class="ax_default paragraph">
+              <div id="u12554_div" class=""></div>
+              <!-- Unnamed () -->
+              <div id="u12555" class="text" style="visibility: visible;">
+                <p><span>1</span></p>
+              </div>
+            </div>
+
+            <!-- Unnamed (矩形) -->
+            <div id="u12556" class="ax_default paragraph">
+              <div id="u12556_div" class=""></div>
+              <!-- Unnamed () -->
+              <div id="u12557" class="text" style="visibility: visible;">
+                <p><span>2</span></p>
+              </div>
+            </div>
+
+            <!-- Unnamed (矩形) -->
+            <div id="u12558" class="ax_default paragraph">
+              <div id="u12558_div" class=""></div>
+              <!-- Unnamed () -->
+              <div id="u12559" class="text" style="visibility: visible;">
+                <p><span>3</span></p>
+              </div>
+            </div>
+
+            <!-- Unnamed (矩形) -->
+            <div id="u12560" class="ax_default paragraph">
+              <div id="u12560_div" class=""></div>
+              <!-- Unnamed () -->
+              <div id="u12561" class="text" style="visibility: visible;">
+                <p><span>4</span></p>
+              </div>
+            </div>
+
+            <!-- Unnamed (矩形) -->
+            <div id="u12562" class="ax_default paragraph">
+              <div id="u12562_div" class=""></div>
+              <!-- Unnamed () -->
+              <div id="u12563" class="text" style="visibility: visible;">
+                <p><span>单选题</span></p>
+              </div>
+            </div>
+
+            <!-- Unnamed (矩形) -->
+            <div id="u12564" class="ax_default paragraph">
+              <div id="u12564_div" class=""></div>
+              <!-- Unnamed () -->
+              <div id="u12565" class="text" style="visibility: visible;">
+                <p><span>多选题</span></p>
+              </div>
+            </div>
+
+            <!-- Unnamed (矩形) -->
+            <div id="u12566" class="ax_default paragraph">
+              <div id="u12566_div" class=""></div>
+              <!-- Unnamed () -->
+              <div id="u12567" class="text" style="visibility: visible;">
+                <p><span>判断题</span></p>
+              </div>
+            </div>
+
+            <!-- Unnamed (矩形) -->
+            <div id="u12568" class="ax_default paragraph">
+              <div id="u12568_div" class=""></div>
+              <!-- Unnamed () -->
+              <div id="u12569" class="text" style="visibility: visible;">
+                <p><span>填空题</span></p>
+              </div>
+            </div>
+
+            <!-- Unnamed (矩形) -->
+            <div id="u12570" class="ax_default paragraph">
+              <div id="u12570_div" class=""></div>
+              <!-- Unnamed () -->
+              <div id="u12571" class="text" style="visibility: visible;">
+                <p><span>启用</span></p>
+              </div>
+            </div>
+
+            <!-- Unnamed (矩形) -->
+            <div id="u12572" class="ax_default paragraph">
+              <div id="u12572_div" class=""></div>
+              <!-- Unnamed () -->
+              <div id="u12573" class="text" style="visibility: visible;">
+                <p><span>审核中</span></p>
+              </div>
+            </div>
+
+            <!-- Unnamed (矩形) -->
+            <div id="u12574" class="ax_default paragraph">
+              <div id="u12574_div" class=""></div>
+              <!-- Unnamed () -->
+              <div id="u12575" class="text" style="visibility: visible;">
+                <p><span>禁用</span></p>
+              </div>
+            </div>
+
+            <!-- Unnamed (矩形) -->
+            <div id="u12576" class="ax_default paragraph">
+              <div id="u12576_div" class=""></div>
+              <!-- Unnamed () -->
+              <div id="u12577" class="text" style="visibility: visible;">
+                <p><span>&nbsp;测试试题：国庆是几号?</span></p>
+              </div>
+            </div>
+
+            <!-- Unnamed (矩形) -->
+            <div id="u12578" class="ax_default paragraph">
+              <div id="u12578_div" class=""></div>
+              <!-- Unnamed () -->
+              <div id="u12579" class="text" style="visibility: visible;">
+                <p><span>admin </span></p>
+              </div>
+            </div>
+
+            <!-- Unnamed (矩形) -->
+            <div id="u12580" class="ax_default paragraph">
+              <div id="u12580_div" class=""></div>
+              <!-- Unnamed () -->
+              <div id="u12581" class="text" style="visibility: visible;">
+                <p><span>admin </span></p>
+              </div>
+            </div>
+
+            <!-- Unnamed (矩形) -->
+            <div id="u12582" class="ax_default paragraph">
+              <div id="u12582_div" class=""></div>
+              <!-- Unnamed () -->
+              <div id="u12583" class="text" style="visibility: visible;">
+                <p><span>admin </span></p>
+              </div>
+            </div>
+
+            <!-- Unnamed (矩形) -->
+            <div id="u12584" class="ax_default paragraph">
+              <div id="u12584_div" class=""></div>
+              <!-- Unnamed () -->
+              <div id="u12585" class="text" style="visibility: visible;">
+                <p><span>admin </span></p>
+              </div>
+            </div>
+
+            <!-- Unnamed (矩形) -->
+            <div id="u12586" class="ax_default paragraph">
+              <div id="u12586_div" class=""></div>
+              <!-- Unnamed () -->
+              <div id="u12587" class="text" style="visibility: visible;">
+                <p><span>2018-03-05 18:44:21</span></p>
+              </div>
+            </div>
+
+            <!-- Unnamed (矩形) -->
+            <div id="u12588" class="ax_default paragraph">
+              <div id="u12588_div" class=""></div>
+              <!-- Unnamed () -->
+              <div id="u12589" class="text" style="visibility: visible;">
+                <p><span>2018-03-05 18:44:21</span></p>
+              </div>
+            </div>
+
+            <!-- Unnamed (矩形) -->
+            <div id="u12590" class="ax_default paragraph">
+              <div id="u12590_div" class=""></div>
+              <!-- Unnamed () -->
+              <div id="u12591" class="text" style="visibility: visible;">
+                <p><span>2018-03-05 18:44:21</span></p>
+              </div>
+            </div>
+
+            <!-- Unnamed (矩形) -->
+            <div id="u12592" class="ax_default paragraph">
+              <div id="u12592_div" class=""></div>
+              <!-- Unnamed () -->
+              <div id="u12593" class="text" style="visibility: visible;">
+                <p><span>2018-03-05 18:44:21</span></p>
+              </div>
+            </div>
+
+            <!-- Unnamed (矩形) -->
+            <div id="u12594" class="ax_default paragraph">
+              <div id="u12594_div" class=""></div>
+              <!-- Unnamed () -->
+              <div id="u12595" class="text" style="visibility: visible;">
+                <p><span>本学年内班级有学生受到学校( ),取消先进班集体申报资格</span></p>
+              </div>
+            </div>
+
+            <!-- Unnamed (矩形) -->
+            <div id="u12596" class="ax_default paragraph">
+              <div id="u12596_div" class=""></div>
+              <!-- Unnamed () -->
+              <div id="u12597" class="text" style="visibility: visible;">
+                <p><span>&nbsp;测试试题：国庆是几号?</span></p>
+              </div>
+            </div>
+
+            <!-- Unnamed (矩形) -->
+            <div id="u12598" class="ax_default paragraph">
+              <div id="u12598_div" class=""></div>
+              <!-- Unnamed () -->
+              <div id="u12599" class="text" style="visibility: visible;">
+                <p><span>本学年内班级有学生受到学校( ),取消先进班集体申报资格</span></p>
+              </div>
+            </div>
+
+            <!-- Unnamed (矩形) -->
+            <div id="u12600" class="ax_default paragraph">
+              <div id="u12600_div" class=""></div>
+              <!-- Unnamed () -->
+              <div id="u12601" class="text" style="visibility: visible;">
+                <p><span>启用</span></p>
+              </div>
+            </div>
+
+            <!-- Unnamed (垂直线) -->
+            <div id="u12602" class="ax_default vertical_line">
+              <img id="u12602_img" class="img " src="images/添加课程/u2796.png"/>
+              <!-- Unnamed () -->
+              <div id="u12603" class="text" style="display: none; visibility: hidden">
+                <p><span></span></p>
+              </div>
+            </div>
+
+            <!-- Unnamed (图片) -->
+            <div id="u12604" class="ax_default image">
+              <img id="u12604_img" class="img " src="images/学习资料-课件管理/u821.png"/>
+              <!-- Unnamed () -->
+              <div id="u12605" class="text" style="display: none; visibility: hidden">
+                <p><span></span></p>
+              </div>
+            </div>
+
+            <!-- Unnamed (矩形) -->
+            <div id="u12606" class="ax_default paragraph">
+              <div id="u12606_div" class=""></div>
+              <!-- Unnamed () -->
+              <div id="u12607" class="text" style="visibility: visible;">
+                <p><span>x</span></p>
+              </div>
+            </div>
+
+            <!-- Unnamed (矩形) -->
+            <div id="u12608" class="ax_default shape">
+              <div id="u12608_div" class=""></div>
+              <!-- Unnamed () -->
+              <div id="u12609" class="text" style="visibility: visible;">
+                <p><span>确认</span></p>
+              </div>
+            </div>
+
+            <!-- Unnamed (矩形) -->
+            <div id="u12610" class="ax_default shape">
+              <div id="u12610_div" class=""></div>
+              <!-- Unnamed () -->
+              <div id="u12611" class="text" style="visibility: visible;">
+                <p><span>取消</span></p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="u12490_state1" class="panel_state" data-label="随机抽题">
+          <div id="u12490_state1_content" class="panel_state_content">
+
+            <!-- Unnamed (矩形) -->
+            <div id="u12612" class="ax_default shape">
+              <div id="u12612_div" class=""></div>
+              <!-- Unnamed () -->
+              <div id="u12613" class="text" style="display: none; visibility: hidden">
+                <p><span></span></p>
+              </div>
+            </div>
+
+            <!-- Unnamed (矩形) -->
+            <div id="u12614" class="ax_default shape">
+              <div id="u12614_div" class=""></div>
+              <!-- Unnamed () -->
+              <div id="u12615" class="text" style="display: none; visibility: hidden">
+                <p><span></span></p>
+              </div>
+            </div>
+
+            <!-- Unnamed (矩形) -->
+            <div id="u12616" class="ax_default paragraph">
+              <div id="u12616_div" class=""></div>
+              <!-- Unnamed () -->
+              <div id="u12617" class="text" style="visibility: visible;">
+                <p><span>x</span></p>
+              </div>
+            </div>
+
+            <!-- Unnamed (矩形) -->
+            <div id="u12618" class="ax_default heading_1">
+              <div id="u12618_div" class=""></div>
+              <!-- Unnamed () -->
+              <div id="u12619" class="text" style="visibility: visible;">
+                <p><span>随机抽题</span></p>
+              </div>
+            </div>
+
+            <!-- Unnamed (矩形) -->
+            <div id="u12620" class="ax_default paragraph">
+              <div id="u12620_div" class=""></div>
+              <!-- Unnamed () -->
+              <div id="u12621" class="text" style="visibility: visible;">
+                <p><span>试题难度</span></p>
+              </div>
+            </div>
+
+            <!-- Unnamed (下拉列表框) -->
+            <div id="u12622" class="ax_default droplist">
+              <select id="u12622_input">
+                <option value="简单">简单</option>
+                <option value="一般">一般</option>
+                <option value="难">难</option>
+              </select>
+            </div>
+
+            <!-- Unnamed (矩形) -->
+            <div id="u12623" class="ax_default paragraph">
+              <div id="u12623_div" class=""></div>
+              <!-- Unnamed () -->
+              <div id="u12624" class="text" style="visibility: visible;">
+                <p><span>试题类型</span></p>
+              </div>
+            </div>
+
+            <!-- Unnamed (下拉列表框) -->
+            <div id="u12625" class="ax_default droplist">
+              <select id="u12625_input">
+                <option value="单选题">单选题</option>
+                <option value="多选题">多选题</option>
+                <option value="判断题">判断题</option>
+                <option value="填空题">填空题</option>
+                <option value="简答题">简答题</option>
+              </select>
+            </div>
+
+            <!-- Unnamed (下拉列表框) -->
+            <div id="u12626" class="ax_default droplist">
+              <select id="u12626_input">
+                <option value="简单">简单</option>
+                <option value="一般">一般</option>
+                <option value="难">难</option>
+              </select>
+            </div>
+
+            <!-- Unnamed (矩形) -->
+            <div id="u12627" class="ax_default paragraph">
+              <div id="u12627_div" class=""></div>
+              <!-- Unnamed () -->
+              <div id="u12628" class="text" style="visibility: visible;">
+                <p><span>题库</span></p>
+              </div>
+            </div>
+
+            <!-- Unnamed (矩形) -->
+            <div id="u12629" class="ax_default paragraph">
+              <div id="u12629_div" class=""></div>
+              <!-- Unnamed () -->
+              <div id="u12630" class="text" style="visibility: visible;">
+                <p><span>试题数量</span></p>
+              </div>
+            </div>
+
+            <!-- Unnamed (文本框) -->
+            <div id="u12631" class="ax_default text_field">
+              <input id="u12631_input" type="text" value=""/>
+            </div>
+
+            <!-- Unnamed (矩形) -->
+            <div id="u12632" class="ax_default paragraph">
+              <div id="u12632_div" class=""></div>
+              <!-- Unnamed () -->
+              <div id="u12633" class="text" style="visibility: visible;">
+                <p><span>/100</span></p>
+              </div>
+            </div>
+
+            <!-- Unnamed (矩形) -->
+            <div id="u12634" class="ax_default shape">
+              <div id="u12634_div" class=""></div>
+              <!-- Unnamed () -->
+              <div id="u12635" class="text" style="visibility: visible;">
+                <p><span>确认</span></p>
+              </div>
+            </div>
+
+            <!-- Unnamed (矩形) -->
+            <div id="u12636" class="ax_default shape">
+              <div id="u12636_div" class=""></div>
+              <!-- Unnamed () -->
+              <div id="u12637" class="text" style="visibility: visible;">
+                <p><span>取消</span></p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="u12490_state2" class="panel_state" data-label="随机出卷">
+          <div id="u12490_state2_content" class="panel_state_content">
+
+            <!-- Unnamed (矩形) -->
+            <div id="u12638" class="ax_default shape">
+              <div id="u12638_div" class=""></div>
+              <!-- Unnamed () -->
+              <div id="u12639" class="text" style="display: none; visibility: hidden">
+                <p><span></span></p>
+              </div>
+            </div>
+
+            <!-- Unnamed (矩形) -->
+            <div id="u12640" class="ax_default shape">
+              <div id="u12640_div" class=""></div>
+              <!-- Unnamed () -->
+              <div id="u12641" class="text" style="display: none; visibility: hidden">
+                <p><span></span></p>
+              </div>
+            </div>
+
+            <!-- Unnamed (矩形) -->
+            <div id="u12642" class="ax_default paragraph">
+              <div id="u12642_div" class=""></div>
+              <!-- Unnamed () -->
+              <div id="u12643" class="text" style="visibility: visible;">
+                <p><span>x</span></p>
+              </div>
+            </div>
+
+            <!-- Unnamed (矩形) -->
+            <div id="u12644" class="ax_default heading_1">
+              <div id="u12644_div" class=""></div>
+              <!-- Unnamed () -->
+              <div id="u12645" class="text" style="visibility: visible;">
+                <p><span>随机出卷</span></p>
+              </div>
+            </div>
+
+            <!-- Unnamed (矩形) -->
+            <div id="u12646" class="ax_default paragraph">
+              <div id="u12646_div" class=""></div>
+              <!-- Unnamed () -->
+              <div id="u12647" class="text" style="visibility: visible;">
+                <p><span>出卷计划</span></p>
+              </div>
+            </div>
+
+            <!-- Unnamed (下拉列表框) -->
+            <div id="u12648" class="ax_default droplist">
+              <select id="u12648_input">
+                <option value="计划一">计划一</option>
+              </select>
+            </div>
+
+            <!-- Unnamed (下拉列表框) -->
+            <div id="u12649" class="ax_default droplist">
+              <select id="u12649_input">
+                <option value="单选题">单选题</option>
+                <option value="多选题">多选题</option>
+                <option value="判断题">判断题</option>
+                <option value="填空题">填空题</option>
+                <option value="简答题">简答题</option>
+              </select>
+            </div>
+
+            <!-- Unnamed (矩形) -->
+            <div id="u12650" class="ax_default paragraph">
+              <div id="u12650_div" class=""></div>
+              <!-- Unnamed () -->
+              <div id="u12651" class="text" style="visibility: visible;">
+                <p><span>题库</span></p>
+              </div>
+            </div>
+
+            <!-- Unnamed (矩形) -->
+            <div id="u12652" class="ax_default paragraph">
+              <div id="u12652_div" class=""></div>
+              <!-- Unnamed () -->
+              <div id="u12653" class="text" style="visibility: visible;">
+                <p><span>试题数量</span></p>
+              </div>
+            </div>
+
+            <!-- Unnamed (文本框) -->
+            <div id="u12654" class="ax_default text_field">
+              <input id="u12654_input" type="text" value=""/>
+            </div>
+
+            <!-- Unnamed (矩形) -->
+            <div id="u12655" class="ax_default paragraph">
+              <div id="u12655_div" class=""></div>
+              <!-- Unnamed () -->
+              <div id="u12656" class="text" style="visibility: visible;">
+                <p><span>/100</span></p>
+              </div>
+            </div>
+
+            <!-- Unnamed (矩形) -->
+            <div id="u12657" class="ax_default shape">
+              <div id="u12657_div" class=""></div>
+              <!-- Unnamed () -->
+              <div id="u12658" class="text" style="visibility: visible;">
+                <p><span>确认</span></p>
+              </div>
+            </div>
+
+            <!-- Unnamed (矩形) -->
+            <div id="u12659" class="ax_default shape">
+              <div id="u12659_div" class=""></div>
+              <!-- Unnamed () -->
+              <div id="u12660" class="text" style="visibility: visible;">
+                <p><span>取消</span></p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Unnamed (管理员用户) -->
+
+      <!-- Unnamed (图片) -->
+      <div id="u12662" class="ax_default image">
+        <img id="u12662_img" class="img " src="images/学员-首页/u250.png"/>
+        <!-- Unnamed () -->
+        <div id="u12663" class="text" style="display: none; visibility: hidden">
+          <p><span></span></p>
+        </div>
+      </div>
+
+      <!-- Unnamed (图片) -->
+      <div id="u12664" class="ax_default image">
+        <img id="u12664_img" class="img " src="images/学员-首页/u252.png"/>
+        <!-- Unnamed () -->
+        <div id="u12665" class="text" style="display: none; visibility: hidden">
+          <p><span></span></p>
+        </div>
+      </div>
+
+      <!-- 退出 (动态面板) -->
+      <div id="u12666" class="ax_default ax_default_hidden" data-label="退出" style="display: none; visibility: hidden">
+        <div id="u12666_state0" class="panel_state" data-label="State1">
+          <div id="u12666_state0_content" class="panel_state_content">
+
+            <!-- Unnamed (矩形) -->
+            <div id="u12667" class="ax_default box_1">
+              <div id="u12667_div" class=""></div>
+              <!-- Unnamed () -->
+              <div id="u12668" class="text" style="display: none; visibility: hidden">
+                <p><span></span></p>
+              </div>
+            </div>
+
+            <!-- Unnamed (矩形) -->
+            <div id="u12669" class="ax_default label">
+              <div id="u12669_div" class=""></div>
+              <!-- Unnamed () -->
+              <div id="u12670" class="text" style="visibility: visible;">
+                <p><span>退出登录</span></p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+</body>
+</html>

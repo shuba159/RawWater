@@ -1,0 +1,25 @@
+
+// 添加项目  培训课件
+function openCourse(title,url,width,height){
+	
+	top.layer.open({
+	    type: 2,  
+	    area: [width, height],
+	    title: title,
+        maxmin: false, //开启最大化最小化按钮
+	    content: url ,
+	    btn: ['确定','关闭'],
+	    yes: function(index, layero){
+	    	var iframe_course = $(layero).find("iframe")[0].contentWindow;
+	    	//var body = layer.getChildFrame('body', index);
+	    	course_show(iframe_course.getCourseIds());
+	    	top.layer.close(index);
+	    },
+	    btn2: function(index, layero){
+		},
+	    cancel: function(index){ 
+	       }
+	}); 
+	
+}
+

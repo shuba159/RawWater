@@ -1,0 +1,449 @@
+package com.jeeplus.modules.project.web;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import org.apache.ibatis.annotations.Param;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.jeeplus.common.utils.StringUtils;
+import com.jeeplus.common.web.BaseController;
+import com.jeeplus.modules.clickgood.dao.YsClickGoodDao;
+import com.jeeplus.modules.clickgood.entity.YsClickGood;
+import com.jeeplus.modules.entity.YsCourse;
+import com.jeeplus.modules.entity.YsProject;
+import com.jeeplus.modules.project.dao.YsProjectVueDao;
+import com.jeeplus.modules.project.entity.YsPaPerScoreVue;
+import com.jeeplus.modules.project.entity.YsProPaperVue;
+import com.jeeplus.modules.project.entity.YsyProclassVue;
+
+/**
+ * 前台项目管理Controller
+ * 
+ * @author wdy
+ * @version 2018-05-17
+ */
+@Controller
+@RequestMapping(value = "${adminPath}/projectvue")
+public class YsProjectVueController extends BaseController {
+	@Autowired
+	YsProjectVueDao ysProjectVueDao;
+
+	/**
+	 * 查看项目管理页
+	 * 
+	 * @param page
+	 * @param limit
+	 * @param createId
+	 * @param depId
+	 * @param proName
+	 * @param response
+	 * @param request
+	 * @param create_time
+	 * @param eTime
+	 * @param proClassName
+	 * @param session
+	 * @return
+	 * @throws IOException
+	 */
+	@RequestMapping("/findAllByRole")
+	@ResponseBody
+	public Map<String, Object> findAllByRole(Integer page, Integer limit, String createId, String depId, String proName,
+			HttpServletResponse response, HttpServletRequest request, String create_time, String eTime,
+			String proClassName, HttpSession session) throws IOException {
+		System.out.println("项目名称" + proName);
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		if (page == 0 || page == null) {
+			jsonMap.put("code", 400);
+			jsonMap.put("msg", "项目管理页数错误");
+			return jsonMap;
+		} else if (limit == 0 || limit == null) {
+			jsonMap.put("code", 400);
+			jsonMap.put("msg", "项目管理显示条数错误");
+			return jsonMap;
+		} else if (StringUtils.isBlank(createId)) {
+			jsonMap.put("code", 400);
+			jsonMap.put("msg", "用户id为空");
+			return jsonMap;
+		} else {
+			// int couid=24;
+			int start = 0;
+			start = (page - 1) * limit;
+			List<YsProject> listYsCourses = ysProjectVueDao.findAllByRole(start, limit, createId, depId, proName,
+					create_time, eTime, proClassName);
+
+			jsonMap.put("code", 200);
+			jsonMap.put("msg", "获取项目管理成功");
+			jsonMap.put("count",
+					ysProjectVueDao.findAllByRoleCount(createId, depId, proName, create_time, eTime, proClassName));
+			jsonMap.put("data", listYsCourses);
+			return jsonMap;
+
+		}
+	}
+
+	/**
+	 * 项目管理-查看试卷
+	 * 
+	 * @param page
+	 * @param limit
+	 * @param response
+	 * @param request
+	 * @param proid
+	 * @param testName
+	 * @param depId
+	 * @param testNumber
+	 * @param startTime
+	 * @param eTime
+	 * @param session
+	 * @return
+	 * @throws IOException
+	 */
+	@RequestMapping("/selectByProPaper")
+	@ResponseBody
+	public Map<String, Object> selectByProPaper(Integer page, Integer limit, HttpServletResponse response,
+			HttpServletRequest request, String proid, String testName, String depId, String testNumber,
+			String startTime, String eTime, HttpSession session) throws IOException {
+		System.out.println("项目名称" + proid);
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		if (page == 0 || page == null) {
+			jsonMap.put("code", 400);
+			jsonMap.put("msg", "项目管理页数错误");
+			return jsonMap;
+		} else if (limit == 0 || limit == null) {
+			jsonMap.put("code", 400);
+			jsonMap.put("msg", "项目管理显示条数错误");
+			return jsonMap;
+		} else if (StringUtils.isBlank(proid)) {
+			jsonMap.put("code", 400);
+			jsonMap.put("msg", "用户id为空");
+			return jsonMap;
+		} else {
+			// int couid=24;
+			int start = 0;
+			start = (page - 1) * limit;
+			List<YsProPaperVue> listYsCourses = ysProjectVueDao.selectByProPaper(start, limit, proid, testName, depId,
+					testNumber, startTime, eTime);
+
+			jsonMap.put("code", 200);
+			jsonMap.put("msg", "获取项目管理成功");
+			jsonMap.put("count",
+					ysProjectVueDao.selectByProPaperCount(proid, testName, depId, testNumber, startTime, eTime));
+			jsonMap.put("data", listYsCourses);
+			return jsonMap;
+
+		}
+	}
+
+	/**
+	 * 根据试卷查看学生分数
+	 * 
+	 * @param page
+	 * @param limit
+	 * @param response
+	 * @param request
+	 * @param papId
+	 * @param depId
+	 * @param ispath
+	 * @param xingming
+	 * @param ordeykey
+	 * @param session
+	 * @return
+	 * @throws IOException
+	 */
+	@RequestMapping("/findByPapScore")
+	@ResponseBody
+	public Map<String, Object> findByPapScore(Integer page, Integer limit, HttpServletResponse response,
+			HttpServletRequest request, String papId, String depId, String ispath, String xingming, String ordeykey,
+			HttpSession session) throws IOException {
+		System.out.println("项目名称" + papId);
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		if (page == 0 || page == null) {
+			jsonMap.put("code", 400);
+			jsonMap.put("msg", "项目管理页数错误");
+			return jsonMap;
+		} else if (limit == 0 || limit == null) {
+			jsonMap.put("code", 400);
+			jsonMap.put("msg", "项目管理显示条数错误");
+			return jsonMap;
+		} else if (StringUtils.isBlank(papId)) {
+			jsonMap.put("code", 400);
+			jsonMap.put("msg", "用户id为空");
+			return jsonMap;
+		} else {
+			// int couid=24;
+			int start = 0;
+			start = (page - 1) * limit;
+			List<YsPaPerScoreVue> listYsCourses = ysProjectVueDao.findByPapScore(start, limit, papId, depId, ispath,
+					xingming, ordeykey);
+
+			jsonMap.put("code", 200);
+			jsonMap.put("msg", "获取项目管理成功");
+			jsonMap.put("count", ysProjectVueDao.findByPapScoreCount(papId, depId, ispath, xingming, ordeykey));
+			jsonMap.put("data", listYsCourses);
+			return jsonMap;
+
+		}
+	}
+
+	/**
+	 * 删除项目
+	 * 
+	 * @param page
+	 * @param limit
+	 * @param createId
+	 * @param depId
+	 * @param proName
+	 * @param response
+	 * @param request
+	 * @param create_time
+	 * @param eTime
+	 * @param proClassName
+	 * @param session
+	 * @return
+	 * @throws IOException
+	 */
+	@RequestMapping("/deleteByid")
+	@ResponseBody
+	public Map<String, Object> deleteByid(HttpServletResponse response, HttpServletRequest request, String proid,
+			String proids, HttpSession session) throws IOException {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+
+		// proids="1,2,3";
+		if (proid != null) {
+			int a = ysProjectVueDao.deleteByid(proid);
+			if (a > 0) {
+				jsonMap.put("code", 200);
+				jsonMap.put("msg", "删除单个项目成功");
+				return jsonMap;
+			}
+		} else if (proids != null) {
+			String[] array = proids.split(",");
+			System.out.println("字符串转化为数组：");
+			for (int i = 0; i < array.length; i++) {
+				ysProjectVueDao.deleteByid(array[i]);
+				System.out.print(array[i] + "  ");
+			}
+			jsonMap.put("code", 200);
+			jsonMap.put("msg", "删除多个项目成功");
+			return jsonMap;
+		}
+		jsonMap.put("code", 400);
+		jsonMap.put("msg", "删除失败");
+		return jsonMap;
+	}
+
+	/**
+	 * 删除课程
+	 * 
+	 * @param page
+	 * @param limit
+	 * @param createId
+	 * @param depId
+	 * @param proName
+	 * @param response
+	 * @param request
+	 * @param create_time
+	 * @param eTime
+	 * @param proClassName
+	 * @param session
+	 * @return
+	 * @throws IOException
+	 */
+	@RequestMapping("/deleteProCouseByid")
+	@ResponseBody
+	public Map<String, Object> deleteProCouseByid(HttpServletResponse response, HttpServletRequest request,
+			String courid, String courids, HttpSession session) throws IOException {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+
+		// proids="1,2,3";
+		if (courid != null) {
+			int a = ysProjectVueDao.deleteProCouseByid(courid);
+			if (a > 0) {
+				jsonMap.put("code", 200);
+				jsonMap.put("msg", "删除单个课程成功");
+				return jsonMap;
+			}
+		} else if (courids != null) {
+			String[] array = courids.split(",");
+			System.out.println("字符串转化为数组：");
+			for (int i = 0; i < array.length; i++) {
+				// ysProjectVueDao.deleteByid(array[i]);
+				ysProjectVueDao.deleteProCouseByid(array[i]);
+				System.out.print(array[i] + "  ");
+			}
+			jsonMap.put("code", 200);
+			jsonMap.put("msg", "删除多个课程成功");
+			return jsonMap;
+		}
+		jsonMap.put("code", 400);
+		jsonMap.put("msg", "删除失败");
+		return jsonMap;
+	}
+
+	/**
+	 * 删除课程-删除分数
+	 * 
+	 * @param page
+	 * @param limit
+	 * @param createId
+	 * @param depId
+	 * @param proName
+	 * @param response
+	 * @param request
+	 * @param create_time
+	 * @param eTime
+	 * @param proClassName
+	 * @param session
+	 * @return
+	 * @throws IOException
+	 */
+	@RequestMapping("/deleteProCouseStuByid")
+	@ResponseBody
+	public Map<String, Object> deleteProCouseStuByid(HttpServletResponse response, HttpServletRequest request,
+			String userid, String userids, HttpSession session) throws IOException {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+
+		// proids="1,2,3";
+		if (userid != null) {
+			int a = ysProjectVueDao.deleteProCouseStuByid(userid);
+			if (a > 0) {
+				jsonMap.put("code", 200);
+				jsonMap.put("msg", "删除单个课程成功");
+				return jsonMap;
+			}
+		} else if (userids != null) {
+			String[] array = userids.split(",");
+			System.out.println("字符串转化为数组：");
+			for (int i = 0; i < array.length; i++) {
+				// ysProjectVueDao.deleteByid(array[i]);
+				ysProjectVueDao.deleteProCouseStuByid(array[i]);
+				System.out.print(array[i] + "  ");
+			}
+			jsonMap.put("code", 200);
+			jsonMap.put("msg", "删除多个课程成功");
+			return jsonMap;
+		}
+		jsonMap.put("code", 400);
+		jsonMap.put("msg", "删除失败");
+		return jsonMap;
+	}
+
+	/**
+	 * 删除课程-删除分数
+	 * 
+	 * @param page
+	 * @param limit
+	 * @param createId
+	 * @param depId
+	 * @param proName
+	 * @param response
+	 * @param request
+	 * @param create_time
+	 * @param eTime
+	 * @param proClassName
+	 * @param session
+	 * @return
+	 * @throws IOException
+	 */
+	@RequestMapping("/deleteProTestByid")
+	@ResponseBody
+	public Map<String, Object> deleteProTestByid(HttpServletResponse response, HttpServletRequest request,
+			String testid, String testids, HttpSession session) throws IOException {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+
+		// proids="1,2,3";
+		if (testid != null) {
+			int a = ysProjectVueDao.deleteProTestByid(testid);
+			if (a > 0) {
+				jsonMap.put("code", 200);
+				jsonMap.put("msg", "删除单个考试成功");
+				return jsonMap;
+			}
+		} else if (testids != null) {
+			String[] array = testids.split(",");
+			System.out.println("字符串转化为数组：");
+			for (int i = 0; i < array.length; i++) {
+				// ysProjectVueDao.deleteByid(array[i]);
+				ysProjectVueDao.deleteProTestByid(array[i]);
+				System.out.print(array[i] + "  ");
+			}
+			jsonMap.put("code", 200);
+			jsonMap.put("msg", "删除多个考试成功");
+			return jsonMap;
+		}
+		jsonMap.put("code", 400);
+		jsonMap.put("msg", "删除失败");
+		return jsonMap;
+	}
+
+	/**
+	 * 删除课程-删除分数
+	 * 
+	 * @param page
+	 * @param limit
+	 * @param createId
+	 * @param depId
+	 * @param proName
+	 * @param response
+	 * @param request
+	 * @param create_time
+	 * @param eTime
+	 * @param proClassName
+	 * @param session
+	 * @return
+	 * @throws IOException
+	 */
+	@RequestMapping("/deleteProTestScoreByid")
+	@ResponseBody
+	public Map<String, Object> deleteProTestScoreByid(HttpServletResponse response, HttpServletRequest request,
+			String testscore, String testscores, HttpSession session) throws IOException {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+
+		// proids="1,2,3";
+		if (testscore != null) {
+			int a = ysProjectVueDao.deleteProTestScoreByid(testscore);
+			if (a > 0) {
+				jsonMap.put("code", 200);
+				jsonMap.put("msg", "删除单个考试成功");
+				return jsonMap;
+			}
+		} else if (testscores != null) {
+			String[] array = testscores.split(",");
+			System.out.println("字符串转化为数组：");
+			for (int i = 0; i < array.length; i++) {
+				// ysProjectVueDao.deleteByid(array[i]);
+				ysProjectVueDao.deleteProTestScoreByid(array[i]);
+				System.out.print(array[i] + "  ");
+			}
+			jsonMap.put("code", 200);
+			jsonMap.put("msg", "删除多个考试成功");
+			return jsonMap;
+		}
+		jsonMap.put("code", 400);
+		jsonMap.put("msg", "删除失败");
+		return jsonMap;
+	}
+
+	@RequestMapping("/findProFen")
+	@ResponseBody
+	public Map<String, Object> findProFen(HttpServletResponse response, HttpServletRequest request, String testscore,
+			String testscores, HttpSession session) throws IOException {
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+         List<YsyProclassVue> listproclass=ysProjectVueDao.findProFen();
+		jsonMap.put("code", 200);
+		jsonMap.put("msg", "获取项目分类成功");
+		jsonMap.put("data", listproclass);
+		return jsonMap;
+	}
+
+}

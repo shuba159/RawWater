@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.clickgood.dao.YsClickGoodDao">
+
+	<sql id="ysClickGoodColumns">
+		a.id AS "id",
+		a.user_id AS "userid",
+		a.cou_id AS "couId",
+		a.good_state AS "goodState",
+		a.sign_state AS "signState",
+
+	</sql>
+
+	<sql id="ysClickGoodJoins">
+		LEFT JOIN sys_user user ON user.id = a.user_id
+	</sql>
+
+
+	<select id="get" resultType="YsClickGood">
+		SELECT
+		<include refid="ysClickGoodColumns" />
+		FROM ys_click_good a
+		<include refid="ysClickGoodJoins" />
+		WHERE a.id = #{id}
+	</select>
+	<select id="findclieckByUser" resultType="YsClickGood">
+		SELECT
+		*
+		FROM ys_click_good
+
+		WHERE cou_id = #{0} and user_id =#{1}
+	</select>
+	<select id="findclieckByUserByCouid" resultType="Integer">
+		select  IFNULL(sum(a.good_state),0) from ys_click_good a  where a.cou_id=#{couid}
+	</select>
+	<insert id="insertclieckByUser">
+		insert into ys_click_good
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="userid != null and userid != null and userid != ''">
+				user_id,
+			</if>
+			<if test="couId !=null">
+				cou_id,
+			</if>
+			<if test="goodState != null and goodState != null and goodState != ''">
+				good_state,
+			</if>
+
+			<if test="signState != null and signState != null and signState != ''">
+				sign_state,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+
+			<if test="userid !=null">#{userid},
+			</if>
+			<if test="couId !=null">#{couId},
+			</if>
+			<if test="goodState !=null">#{goodState},
+			</if>
+			<if test="signState !=null">#{signState},
+			</if>
+		</trim>
+
+	</insert>
+
+
+	<select id="findList" resultType="YsClickGood">
+		SELECT
+		<include refid="ysClickGoodColumns" />
+		FROM ys_click_good a
+		<include refid="ysClickGoodJoins" />
+		<where>
+
+			<if test="id != null and id != ''">
+				AND a.id = #{id}
+			</if>
+			<if test="user != null and user.id != null and user.id != ''">
+				AND a.user_id = #{user.id}
+			</if>
+			<if test="couId != null and couId != ''">
+				AND a.cou_id = #{couId}
+			</if>
+			<if test="goodState != null and goodState != ''">
+				AND a.good_state = #{goodState}
+			</if>
+			<if test="signState != null and signState != ''">
+				AND a.sign_state = #{signState}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="YsClickGood">
+		SELECT
+		<include refid="ysClickGoodColumns" />
+		FROM ys_click_good a
+		<include refid="ysClickGoodJoins" />
+		<where>
+
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert">
+		INSERT INTO ys_click_good(
+		id,
+		user_id,
+		cou_id,
+		good_state,
+		sign_state
+		) VALUES (
+		#{id},
+		#{user.id},
+		#{couId},
+		#{goodState},
+		#{signState}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE ys_click_good <set>
+		<if test="goodState != null">
+			good_state = #{goodState},
+		</if>
+		<if test="signState != null">
+				sign_state = #{signState},
+		</if>
+		</set>
+		
+
+		WHERE id = #{id}
+	</update>
+
+
+	<!--物理删除 -->
+	<update id="delete">
+		DELETE FROM ys_click_good
+		WHERE id = #{id}
+	</update>
+
+	<!--逻辑删除 -->
+	<update id="deleteByLogic">
+		UPDATE ys_click_good SET
+		del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+
+
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="YsClickGood"
+		statementType="STATEMENT">
+		select * FROM ys_click_good where ${propertyName} =
+		'${value}'
+	</select>
+
+</mapper>

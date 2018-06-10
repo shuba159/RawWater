@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.project.dao.YsProjectDao">
+    
+	<sql id="ysProjectColumns">
+		a.id AS "id",
+		a.pro_name AS "proName",
+		a.pro_class_id AS "proClassId",
+		a.start_time AS "startTime",
+		a.end_time AS "endTime",
+		a.course_type AS "courseType",
+		a.study_count AS "studyCount",
+		a.evaluate AS "evaluate",
+		a.goal AS "goal",
+		a.introduce AS "introduce",
+		a.course_number AS "courseNumber",
+		a.create_time AS "createTime",
+		a.total_score AS "totalScore",
+		a.update_time AS "updateTime",
+		a.create_id AS "createId",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="ysProjectJoins">
+	</sql>
+	
+    
+	<select id="get" resultType="YsProject" >
+		SELECT 
+			<include refid="ysProjectColumns"/>
+		FROM ys_project a
+		<include refid="ysProjectJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="YsProject" >
+		SELECT 
+			<include refid="ysProjectColumns"/>
+		FROM ys_project a
+		<include refid="ysProjectJoins"/>
+		<where>
+			a.del_flag = 0
+			<if test="id != null and id != ''">
+				AND a.id = #{id}
+			</if>
+			<if test="proName != null and proName != ''">
+				AND a.pro_name = #{proName}
+			</if>
+			<if test="proClassId != null and proClassId != ''">
+				AND a.pro_class_id = #{proClassId}
+			</if>
+			<if test="createName != null and createName != ''">
+				AND a.create_id = #{createId}
+			</if>
+			<if test="sTime != null and sTime != ''">
+				AND a.update_time > #{sTime}
+			</if>
+			<if test="eTime != null and eTime != ''">
+				AND #{eTime} > a.update_time
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="YsProject" >
+		SELECT 
+			<include refid="ysProjectColumns"/>
+		FROM ys_project a
+		<include refid="ysProjectJoins"/>
+		<where>
+			a.del_flag = 0
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<!-- 项目评价 -->
+	<select id="findEvaluate" resultType="YsEvaluate" >
+		SELECT 
+			a.start_time AS "startTime",
+			a.end_time AS "endTime",
+			b.evaluate AS "evaluate",  
+			COUNT(pro_id) AS "totalCount",
+			COUNT(b.study_state = '2' or null) AS "studyingCount",
+			COUNT(b.evaluate != '0' or not null) AS "evaluateCount"       
+		FROM ys_project a   
+		LEFT JOIN ys_stustate b on b.pro_id = a.Id
+		<include refid="ysProjectJoins"/>
+		WHERE a.del_flag = 0  AND b.pro_id = #{proId}  
+	</select>
+	<!-- 项目评价 等级 -->
+	<select id="findEva" resultType="YsEvaluate" >
+		SELECT 
+			a.evaluate AS "evaluate"  		     
+		FROM ys_stustate a  
+		WHERE a.pro_id = #{proId}  
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO ys_project(
+			pro_name,
+			pro_class_id,
+			start_time,
+			end_time,
+			course_type,
+			goal,
+			introduce,
+			create_time,
+			total_score,
+			update_time,
+			create_id
+		) VALUES (
+			#{proName},
+			#{proClassId},
+			#{startTime},
+			#{endTime},
+			#{courseType},
+			#{goal},
+			#{introduce},
+			#{createTime},
+			#{totalScore},
+			#{updateTime},
+			#{createId}
+		)
+	</insert>
+	
+	<!-- 保存并返回主键 -->
+	<insert id="saveYsPro" useGeneratedKeys="true" keyProperty="id" parameterType="YsEvaluate">
+		INSERT INTO ys_project(
+			pro_name,
+			pro_class_id,
+			start_time,
+			end_time,
+			course_type,
+			goal,
+			introduce,
+			create_time,
+			total_score,
+			update_time,
+			create_id
+		) VALUES (
+			#{proName},
+			#{proClassId},
+			#{startTime},
+			#{endTime},
+			#{courseType},
+			#{goal},
+			#{introduce},
+			#{createTime},
+			#{totalScore},
+			#{updateTime},
+			#{createId}
+		)
+	</insert>
+	
+	<insert id="saveCourse" parameterType="map">
+		INSERT INTO ys_pro_course(
+			pro_id,
+			cou_id
+		) VALUES (
+			#{proId},
+			#{couId}
+		)
+	</insert>
+	
+	<insert id="savePaper" parameterType="map">
+		INSERT INTO ys_pro_paper_pro(
+			pro_id,
+			pap_id
+		) VALUES (
+			#{proId},
+			#{papId}
+		)
+	</insert>
+	
+	<insert id="saveUser" parameterType="map">
+		INSERT INTO ys_stustate(
+			pro_id,
+			user_id
+		) VALUES (
+			#{proId},
+			#{userId}
+		)
+	</insert>
+	
+	<insert id="saveDep" parameterType="map">
+		INSERT INTO ys_pro_dep(
+			pro_id,
+			dep_id
+		) VALUES (
+			#{proId},
+			#{depId}
+		)
+	</insert>
+	
+	
+	<update id="update">
+		UPDATE ys_project SET 	
+			pro_name = #{proName},
+			pro_class_id = #{proClassId},
+			start_time = #{startTime},
+			end_time = #{endTime},
+			course_type = #{courseType},
+			study_count = #{studyCount},
+			evaluate = #{evaluate},
+			goal = #{goal},
+			introduce = #{introduce},
+			course_number = #{courseNumber},
+			create_time = #{createTime},
+			total_score = #{totalScore},
+			update_time = #{updateTime},
+			create_id = #{createId}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		UPDATE ys_project SET 
+			del_flag = 1
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE ys_project SET 
+			del_flag = 1
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="YsProject" statementType="STATEMENT">
+		select * FROM ys_project  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

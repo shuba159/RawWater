@@ -1,0 +1,147 @@
+<%@ page contentType="text/html;charset=UTF-8" %>
+<%@ include file="/webpage/include/taglib.jsp"%>
+<html>
+<head>
+	<title>添加题库管理</title>
+	<meta name="decorator" content="default"/>
+	<script type="text/javascript">
+		var validateForm;
+		function doSubmit(){//回调函数，在编辑和保存动作时，供openDialog调用提交表单。
+		  if(validateForm.form()){
+			  $("#inputForm").submit();
+			  return true;
+		  }
+	
+		  return false;
+		}
+		$(document).ready(function() {
+			validateForm = $("#inputForm").validate({
+				submitHandler: function(form){
+					loading('正在提交，请稍等...');
+					form.submit();
+				},
+				errorContainer: "#messageBox",
+				errorPlacement: function(error, element) {
+					$("#messageBox").text("输入有误，请先更正。");
+					if (element.is(":checkbox")||element.is(":radio")||element.parent().is(".input-append")){
+						error.appendTo(element.parent().parent());
+					} else {
+						error.insertAfter(element);
+					}
+				}
+			});
+			
+		});
+	</script>
+</head>
+<body class="hideScroll">
+		<form:form id="inputForm" modelAttribute="ysQuestions" action="${ctx}/questions/questions_add/ysQuestions/save" method="post" class="form-horizontal">
+		<form:hidden path="id"/>
+		<sys:message content="${message}"/>	
+		<table class="table table-bordered  table-condensed dataTables-example dataTable no-footer">
+		   <tbody>
+				<tr>
+					<td class="width-15 active"><label class="pull-right"><font color="red">*</font>试题难度1.简单2.一般3.难：</label></td>
+					<td class="width-35">
+						<form:select path="level" class="form-control required">
+							<form:option value="" label=""/>
+							<form:options items="${fns:getDictList('level')}" itemLabel="label" itemValue="value" htmlEscape="false"/>
+						</form:select>
+					</td>
+					<td class="width-15 active"><label class="pull-right"><font color="red">*</font>试题类型1.单选2.多选3.填空4.判断5.简答：</label></td>
+					<td class="width-35">
+						<form:select path="questionType" class="form-control required">
+							<form:option value="" label=""/>
+							<form:options items="${fns:getDictList('question_type')}" itemLabel="label" itemValue="value" htmlEscape="false"/>
+						</form:select>
+					</td>
+				</tr>
+				<tr>
+					<td class="width-15 active"><label class="pull-right"><font color="red">*</font>试题分类1.英语考试2.财务会计3.公务员考试：</label></td>
+					<td class="width-35">
+						<form:select path="questionClass" class="form-control required">
+							<form:option value="" label=""/>
+							<form:options items="${fns:getDictList('question_class')}" itemLabel="label" itemValue="value" htmlEscape="false"/>
+						</form:select>
+					</td>
+					<td class="width-15 active"><label class="pull-right"><font color="red">*</font>试题状态1.启用2.禁用：</label></td>
+					<td class="width-35">
+						<form:select path="questionState" class="form-control required">
+							<form:option value="" label=""/>
+							<form:options items="${fns:getDictList('question_state')}" itemLabel="label" itemValue="value" htmlEscape="false"/>
+						</form:select>
+					</td>
+				</tr>
+				<tr>
+					<td class="width-15 active"><label class="pull-right"><font color="red">*</font>所属部门：</label></td>
+					<td class="width-35">
+						<form:select path="depId" class="form-control required">
+							<form:option value="" label=""/>
+							<form:options items="${fns:getDictList('dep_id')}" itemLabel="label" itemValue="value" htmlEscape="false"/>
+						</form:select>
+					</td>
+					<td class="width-15 active"><label class="pull-right"><font color="red">*</font>审批状态1.已审批2.未审批：</label></td>
+					<td class="width-35">
+						<form:select path="ispath" class="form-control required">
+							<form:option value="" label=""/>
+							<form:options items="${fns:getDictList('ispath')}" itemLabel="label" itemValue="value" htmlEscape="false"/>
+						</form:select>
+					</td>
+				</tr>
+				<tr>
+					<td class="width-15 active"><label class="pull-right">判分规则一1按空算分2全对算分(仅仅填空题需要)：</label></td>
+					<td class="width-35">
+						<form:select path="ruleOne" class="form-control ">
+							<form:option value="" label=""/>
+							<form:options items="${fns:getDictList('rule_one')}" itemLabel="label" itemValue="value" htmlEscape="false"/>
+						</form:select>
+					</td>
+					<td class="width-15 active"><label class="pull-right">判分规则二1区分答案顺序2不区分答案顺序(仅仅填空题需要)：</label></td>
+					<td class="width-35">
+						<form:select path="ruleTwo" class="form-control ">
+							<form:option value="" label=""/>
+							<form:options items="${fns:getDictList('rule_two')}" itemLabel="label" itemValue="value" htmlEscape="false"/>
+						</form:select>
+					</td>
+				</tr>
+				<tr>
+					<td class="width-15 active"><label class="pull-right">判分规则三1区分大小写2不区分大小写(仅仅填空题需要)：</label></td>
+					<td class="width-35">
+						<form:select path="ruleThree" class="form-control ">
+							<form:option value="" label=""/>
+							<form:options items="${fns:getDictList('rule_three')}" itemLabel="label" itemValue="value" htmlEscape="false"/>
+						</form:select>
+					</td>
+					<td class="width-15 active"><label class="pull-right"><font color="red">*</font>试题描述：</label></td>
+					<td class="width-35">
+						<form:textarea path="describe" htmlEscape="false" rows="4"    class="form-control required"/>
+					</td>
+				</tr>
+				<tr>
+					<td class="width-15 active"><label class="pull-right"><font color="red">*</font>试题正确答案：</label></td>
+					<td class="width-35">
+						<form:input path="answer" htmlEscape="false"    class="form-control required"/>
+					</td>
+					<td class="width-15 active"><label class="pull-right"><font color="red">*</font>选项/简答题答案：</label></td>
+					<td class="width-35">
+						<form:textarea path="options" htmlEscape="false" rows="4"    class="form-control required"/>
+					</td>
+				</tr>
+				<tr>
+					<td class="width-15 active"><label class="pull-right"><font color="red">*</font>答案解析：</label></td>
+					<td class="width-35">
+						<form:textarea path="analysis" htmlEscape="false" rows="4"    class="form-control required"/>
+					</td>
+					<td class="width-15 active"></td>
+		   			<td class="width-35" ></td>
+		  		</tr>
+		 	</tbody>
+		</table>
+		
+		<div class="layui-layer-btn">
+			<a class="layui-layer-btn0"  onclick="doSubmit()">确定</a>
+		</div>
+		
+	</form:form>
+</body>
+</html>

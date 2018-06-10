@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.onlinetime.dao.YsOnlinetimeDao">
+    
+	<sql id="ysOnlinetimeColumns">
+		a.id AS "id",
+		a.userid AS "userid",
+		a.timenumber AS "timenumber",
+		a.lasetime AS "lasetime"
+	</sql>
+	
+	<sql id="ysOnlinetimeJoins">
+	</sql>
+	
+    
+	<select id="get" resultType="YsOnlinetime" >
+		SELECT 
+			<include refid="ysOnlinetimeColumns"/>
+		FROM ys_onlinetime a
+		<include refid="ysOnlinetimeJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	   <select id="selectByPrimaryKey" resultType="YsOnlinetime"  parameterType="java.lang.Integer" >
+    select 	<include refid="ysOnlinetimeColumns"/> 
+    from ys_onlinetime a where a.userid=#{userid,jdbcType=INTEGER}
+  </select>
+   <insert id="insertOnline" parameterType="YsOnlinetime" >
+    insert into ys_onlinetime (userid, timenumber, 
+      lasetime
+      )
+    values ( #{userid,jdbcType=INTEGER}, #{timenumber,jdbcType=INTEGER}, 
+      #{lasetime,jdbcType=VARCHAR}
+      )
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="YsOnlinetime" >
+    update ys_onlinetime a
+    set 
+      a.timenumber = #{timenumber,jdbcType=INTEGER},
+      a.lasetime = #{lasetime,jdbcType=VARCHAR}
+    where a.userid = #{userid,jdbcType=INTEGER}
+  </update>
+	
+	
+	
+	<select id="findList" resultType="YsOnlinetime" >
+		SELECT 
+			<include refid="ysOnlinetimeColumns"/>
+		FROM ys_onlinetime a
+		<include refid="ysOnlinetimeJoins"/>
+		<where>
+			
+			<if test="id != null and id != ''">
+				AND a.id = #{id}
+			</if>
+			<if test="userid != null and userid != ''">
+				AND a.userid = #{userid}
+			</if>
+			<if test="timenumber != null and timenumber != ''">
+				AND a.timenumber = #{timenumber}
+			</if>
+			<if test="lasetime != null and lasetime != ''">
+				AND a.lasetime = #{lasetime}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="YsOnlinetime" >
+		SELECT 
+			<include refid="ysOnlinetimeColumns"/>
+		FROM ys_onlinetime a
+		<include refid="ysOnlinetimeJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO ys_onlinetime(
+			id,
+			userid,
+			timenumber,
+			lasetime
+		) VALUES (
+			#{id},
+			#{userid},
+			#{timenumber},
+			#{lasetime}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE ys_onlinetime SET 	
+			userid = #{userid},
+			timenumber = #{timenumber},
+			lasetime = #{lasetime}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM ys_onlinetime
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE ys_onlinetime SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="YsOnlinetime" statementType="STATEMENT">
+		select * FROM ys_onlinetime  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

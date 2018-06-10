@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.dynamic.dao.YsDynamicDao">
+    
+	<sql id="ysDynamicColumns">
+		a.id AS "id",
+		a.publish_time AS "publishTime",
+		a.dynamic_title AS "dynamicTitle",
+		a.content AS "content",
+		a.address AS "address",
+		a.publish_state AS "publishState"
+	</sql>
+	
+	<sql id="ysDynamicJoins">
+	</sql>
+	<select id="selectAllHomePage" resultType="YsDynamic" >
+    select  <include refid="ysDynamicColumns"/>
+    from ys_dynamic a where publish_state=1
+ order by publish_time desc limit 0,3
+  </select>
+	
+    
+	<select id="get" resultType="YsDynamic" >
+		SELECT 
+			<include refid="ysDynamicColumns"/>
+		FROM ys_dynamic a
+		<include refid="ysDynamicJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="YsDynamic" >
+		SELECT 
+			<include refid="ysDynamicColumns"/>
+		FROM ys_dynamic a
+		<include refid="ysDynamicJoins"/>
+		<where>
+			
+			<if test="id != null and id != ''">
+				AND a.id = #{id}
+			</if>
+			<if test="publishTime != null and publishTime != ''">
+				AND a.publish_time = #{publishTime}
+			</if>
+			<if test="dynamicTitle != null and dynamicTitle != ''">
+				AND a.dynamic_title = #{dynamicTitle}
+			</if>
+			<if test="content != null and content != ''">
+				AND a.content = #{content}
+			</if>
+			<if test="address != null and address != ''">
+				AND a.address = #{address}
+			</if>
+			<if test="publishState != null and publishState != ''">
+				AND a.publish_state = #{publishState}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="YsDynamic" >
+		SELECT 
+			<include refid="ysDynamicColumns"/>
+		FROM ys_dynamic a
+		<include refid="ysDynamicJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO ys_dynamic(
+			id,
+			publish_time,
+			dynamic_title,
+			content,
+			address,
+			publish_state
+		) VALUES (
+			#{id},
+			#{publishTime},
+			#{dynamicTitle},
+			#{content},
+			#{address},
+			#{publishState}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE ys_dynamic SET 	
+			publish_time = #{publishTime},
+			dynamic_title = #{dynamicTitle},
+			content = #{content},
+			address = #{address},
+			publish_state = #{publishState}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM ys_dynamic
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE ys_dynamic SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="YsDynamic" statementType="STATEMENT">
+		select * FROM ys_dynamic  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

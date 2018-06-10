@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.project.dao.YsPaperPlanDao">
+    
+	<sql id="ysPaperPlanColumns">
+		a.id AS "id",
+		a.plan_name AS "planName",
+		a.single_data AS "singleData",
+		a.many_data AS "manyData",
+		a.judge_data AS "judgeData",
+		a.fill_data AS "fillData",
+		a.simple_data AS "simpleData",
+		a.major_id AS "majorId"
+	</sql>
+	
+	<sql id="ysPaperPlanJoins">
+	</sql>
+	
+    
+	<select id="get" resultType="YsPaperPlan" >
+		SELECT 
+			<include refid="ysPaperPlanColumns"/>
+		FROM ys_paper_plan a
+		<include refid="ysPaperPlanJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="YsPaperPlan" >
+		SELECT 
+			<include refid="ysPaperPlanColumns"/>
+		FROM ys_paper_plan a
+		<include refid="ysPaperPlanJoins"/>
+		<where>
+			<if test="planName != null and planName != ''">
+				AND a.plan_name = #{planName}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="YsPaperPlan" >
+		SELECT 
+			<include refid="ysPaperPlanColumns"/>
+		FROM ys_paper_plan a
+		<include refid="ysPaperPlanJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO ys_paper_plan(
+			plan_name,
+			single_data,
+			many_data,
+			judge_data,
+			fill_data,
+			simple_data,
+			major_id,
+			pap_id
+		) VALUES (
+			#{planName},
+			#{singleData},
+			#{manyData},
+			#{judgeData},
+			#{fillData},
+			#{simpleData},
+			#{majorId},
+			#{papId}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE ys_paper_plan SET 	
+			plan_name = #{planName},
+			single_data = #{singleData},
+			many_data = #{manyData},
+			judge_data = #{judgeData},
+			fill_data = #{fillData},
+			simple_data = #{simpleData},
+			major_id = #{majorId} 
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM ys_paper_plan      
+		WHERE id = #{id} 
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE ys_paper_plan SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="YsPaperPlan" statementType="STATEMENT">
+		select * FROM ys_paper_plan  where ${propertyName} = '${value}'
+	</select>
+	
+	<!-- 出卷计划 随机出题 -->
+	<select id="findQuesionByRandom" parameterType="map" resultType="YsQuestions" >
+		SELECT 
+			a.id AS "id",
+			a.question_type AS "questionType",
+			a.level AS "level",
+			a.describes AS "describes",
+			a.options AS "options"
+		FROM ys_questions a
+		WHERE a.question_type = #{questionType} AND a.level = #{level}
+		
+	</select>
+	
+	<!-- 出卷计划 随机出题 -->
+	<select id="findQuesionByPlanId" parameterType="map" resultType="YsQuestions" >
+		SELECT 
+			a.id AS "id",
+			a.question_type AS "questionType",
+			a.level AS "level",
+			a.describes AS "describes",
+			a.options AS "options",
+			b.que_score AS queScore
+		FROM ys_questions a  
+		JOIN ys_pap_que b on b.que_id = a.id  
+		JOIN ys_paper_plan c on c.pap_id = b.pap_id     
+		WHERE c.id = #{planId}
+		
+	</select>
+	
+	<!-- 根据计划id查询试卷 -->
+	<select id="findPaperByPlanId" resultType="YsPaper" >
+		SELECT 
+			a.id AS "id"
+		FROM ys_paper a 
+		JOIN ys_paper_plan b on a.id = b.pap_id   
+		<include refid="ysPaperPlanJoins"/>
+		WHERE b.id = #{planId} 
+	</select>
+	
+</mapper>

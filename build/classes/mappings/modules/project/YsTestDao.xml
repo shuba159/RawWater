@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.project.dao.YsTestDao">
+    
+	<sql id="ysTestColumns">
+		a.id AS "id",
+		a.test_name AS "testName",
+		a.describes AS "describes",
+		a.start_time AS "startTime",
+		a.end_time AS "endTime",
+		a.test_number AS "testNumber",
+		a.test_state AS "testState",
+		a.test_time AS "testTime",
+		a.is_eva AS "isEva",
+		a.not_eva AS "notEva",
+		a.pap_id AS "papId"
+	</sql>
+	
+	<sql id="ysTestJoins">
+	</sql>
+	
+    
+	<select id="get" resultType="YsTest" >
+		SELECT 
+			<include refid="ysTestColumns"/>
+		FROM ys_test a
+		<include refid="ysTestJoins"/>
+		WHERE a.id = #{id} 
+	</select>
+	
+	<select id="findList" resultType="YsTest" >
+		SELECT 
+			<include refid="ysTestColumns"/>
+		FROM ys_test a
+		<include refid="ysTestJoins"/>
+		<where>
+			<if test="testName != null and testName != ''">
+				AND a.test_name = #{testName}
+			</if>
+			<if test="startTime != null and startTime != '' and endTime != null and endTime != ''">
+				AND a.start_time > #{startTime} AND  #{endTime} > a.end_time 
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="YsTest" >
+		SELECT 
+			<include refid="ysTestColumns"/>
+		FROM ys_test a
+		<include refid="ysTestJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO ys_test(
+			test_name,
+			describes,
+			start_time,
+			end_time,
+			test_number,
+			test_state,
+			test_time,
+			pap_id
+		) VALUES (
+			#{testName},
+			#{describes},
+			#{startTime},
+			#{endTime},
+			#{testNumber},
+			#{testState},
+			#{testTime},
+			#{papId}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE ys_test SET 	
+			test_name = #{testName},
+			describes = #{describes},
+			start_time = #{startTime},
+			end_time = #{endTime},
+			test_number = #{testNumber},
+			test_state = #{testState},
+			test_time = #{testTime},
+			is_eva = #{isEva},
+			not_eva = #{notEva},
+			pap_id = #{papId}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM ys_test      
+		WHERE id = #{id}	
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE ys_test SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="YsTest" statementType="STATEMENT">
+		select * FROM ys_test  where ${propertyName} = '${value}'
+	</select>
+	
+	<!-- 保存试卷 -->
+	<insert id="saveYsTest" useGeneratedKeys="true" keyProperty="id" parameterType="YsTest">
+		INSERT INTO ys_test(
+			test_name,
+			describes,
+			start_time,
+			end_time,
+			test_number,
+			test_state,
+			test_time,
+			not_eva,
+			pap_id,
+			pro_id
+		) VALUES (
+			#{testName},
+			#{describes},
+			#{startTime},
+			#{endTime},
+			#{testNumber},
+			#{testState},
+			#{testTime},
+			#{notEva},
+			#{papId},
+			#{proId}
+		)
+	</insert>
+	
+	<!-- 保存test与dep的关联 -->
+		<insert id="saveYsTestDep">
+		INSERT INTO ys_test_dep(
+			test_id, 
+			dep_id
+		) VALUES 
+			<foreach collection="testDepIdList" item="item" separator=",">
+				(#{testId}, #{item})
+			</foreach>
+	</insert>
+	
+	<!-- 保存考试和学员的关联 -->
+	<insert id="saveYsTestUser">
+		INSERT INTO ys_test_score(
+			pro_id,
+			<!-- 这是考试的外键 --> 
+			pap_id,
+			user_id,
+			dep_id
+		) VALUES 
+			<foreach collection="testUserIdList" item="item" separator=",">
+				(
+					#{proId},
+					#{testId},
+					#{item},
+					#{testDepId}
+				)
+			</foreach>
+	</insert>
+	
+	<!-- 根据testId获取部门名称 -->
+	<select id="findYsTestDepById" resultType="YsDepartment" >
+		SELECT 
+			a.id AS id,
+			a.dep_name AS depName 
+		FROM ys_department a  
+		JOIN ys_test_dep b ON a.id = b.dep_id  
+		<where>
+			b.test_id = #{id}
+		</where>	
+	</select>
+	
+</mapper>

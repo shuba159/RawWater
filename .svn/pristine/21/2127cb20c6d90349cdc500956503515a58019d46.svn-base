@@ -1,0 +1,405 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.project.dao.YsProjectDao">
+    
+	<sql id="ysProjectColumns">
+		a.id AS "id",
+		a.pro_name AS "proName",
+		a.pro_class_id AS "proClassId",
+		a.start_time AS "startTime",
+		a.end_time AS "endTime",
+		a.course_type AS "courseType",
+		a.study_count AS "studyCount",
+		a.evaluate AS "evaluate",
+		a.goal AS "goal",
+		a.introduce AS "introduce",
+		a.course_number AS "courseNumber",
+		a.create_time AS "createTime",
+		a.total_score AS "totalScore",
+		a.update_time AS "updateTime",
+		a.create_id AS "createId"
+	</sql>
+	
+	<sql id="ysProjectJoins">
+	</sql>
+	
+    
+	<select id="get" resultType="YsProject" >
+		SELECT 
+			<include refid="ysProjectColumns"/>
+		FROM ys_project a
+		<include refid="ysProjectJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="YsProject" >
+		SELECT 
+			<include refid="ysProjectColumns"/>
+		FROM ys_project a
+		<include refid="ysProjectJoins"/>
+		<where>
+			<if test="id != null and id != ''">
+				AND a.id = #{id}
+			</if>
+			<if test="proName != null and proName != ''">
+				AND a.pro_name = #{proName}
+			</if>
+			<if test="proClassId != null and proClassId != ''">
+				AND a.pro_class_id = #{proClassId}
+			</if>
+			<if test="createName != null and createName != ''">
+				AND a.create_id = #{createId}
+			</if>
+			<if test="sTime != null and sTime != ''">
+				AND a.update_time > #{sTime}
+			</if>
+			<if test="eTime != null and eTime != ''">
+				AND #{eTime} > a.update_time
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="YsProject" >
+		SELECT 
+			<include refid="ysProjectColumns"/>
+		FROM ys_project a
+		<include refid="ysProjectJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<!-- 项目评价 -->
+	<select id="findEvaluate" resultType="YsEvaluate" >
+		SELECT 
+			a.start_time AS "startTime",
+			a.end_time AS "endTime",
+			b.evaluate AS "evaluate",  
+			COUNT(pro_id) AS "totalCount",
+			COUNT(b.study_state = '2' or null) AS "studyingCount",
+			COUNT(b.evaluate != '0' or not null) AS "evaluateCount"       
+		FROM ys_project a   
+		LEFT JOIN ys_stustate b on b.pro_id = a.Id
+		<include refid="ysProjectJoins"/>
+		WHERE b.pro_id = #{proId}  
+	</select>
+	<!-- 项目评价 等级 -->
+	<select id="findEva" resultType="YsEvaluate" >
+		SELECT 
+			a.evaluate AS "evaluate"  		     
+		FROM ys_stustate a  
+		WHERE a.pro_id = #{proId}  
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO ys_project(
+			pro_name,
+			pro_class_id,
+			start_time,
+			end_time,
+			course_type,
+			goal,
+			introduce,
+			create_time,
+			total_score,
+			update_time,
+			create_id
+		) VALUES (
+			#{proName},
+			#{proClassId},
+			#{startTime},
+			#{endTime},
+			#{courseType},
+			#{goal},
+			#{introduce},
+			#{createTime},
+			#{totalScore},
+			#{updateTime},
+			#{createId}
+		)
+	</insert>
+	
+	<!-- 保存并返回主键 -->
+	<insert id="saveYsPro" useGeneratedKeys="true" keyProperty="id" parameterType="YsEvaluate">
+		INSERT INTO ys_project(
+			pro_name,
+			pro_class_id,
+			start_time,
+			end_time,
+			course_type,
+			goal,
+			introduce,
+			create_time,
+			total_score,
+			update_time,
+			create_id
+		) VALUES (
+			#{proName},
+			#{proClassId},
+			#{startTime},
+			#{endTime},
+			#{courseType},
+			#{goal},
+			#{introduce},
+			#{createTime},
+			#{totalScore},
+			#{updateTime},
+			#{createId}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE ys_project SET 	
+			pro_name = #{proName},
+			pro_class_id = #{proClassId},
+			start_time = #{startTime},
+			end_time = #{endTime},
+			course_type = #{courseType},
+			study_count = #{studyCount},
+			evaluate = #{evaluate},
+			goal = #{goal},
+			introduce = #{introduce},
+			course_number = #{courseNumber},
+			create_time = #{createTime},
+			total_score = #{totalScore},
+			update_time = #{updateTime},
+			create_id = #{createId}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM ys_project         
+		WHERE id = #{id}  
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE ys_project SET 
+			del_flag = 1
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="YsProject" statementType="STATEMENT">
+		select * FROM ys_project  where ${propertyName} = '${value}'
+	</select>
+	
+	<!-- 保存课件 -->
+	<insert id="saveCourse" parameterType="map">
+		INSERT INTO ys_pro_course(
+			pro_id,
+			cou_id
+		) VALUES 
+			<foreach collection="courseIdList" item="item" separator=",">
+				(#{proId}, #{item})
+			</foreach>
+	</insert>
+	
+	<!-- 保存课件和学员的关联 -->
+	<insert id="saveCourseUser">
+		INSERT INTO ys_course_user(
+			pro_id, 
+			user_id,
+			cou_id
+		) VALUES 
+			<foreach collection="userIdList" item="item" separator=",">
+				(#{proId}, #{item}, #{couId})
+			</foreach>
+	</insert>
+	
+	<!-- 关联部门 -->
+	<insert id="saveDep" parameterType="map">
+		INSERT INTO ys_pro_dep(
+			pro_id,
+			dep_id
+		) VALUES 
+			<foreach collection="depIdList" item="item" separator=",">
+				(#{proId}, #{item})
+			</foreach>
+	</insert>
+	
+	<!-- 关联学员 -->
+		<insert id="saveUser" parameterType="map">
+		INSERT INTO ys_stustate(
+			pro_id,
+			user_id
+		) VALUES 
+			<foreach collection="userIdList" item="item" separator=",">
+				(#{proId}, #{item})
+			</foreach>
+	</insert>
+	
+	<!-- 根据proId查询课件 -->
+	<select id="findPageCourseByProId" resultType="YsCourse" >
+		SELECT 
+			a.id AS "id",
+			a.course_name AS "courseName",
+			a.dep_id AS "depId",
+			a.course_type AS "courseType",
+			a.address AS "address",
+			a.course_class AS "courseClass",
+			a.describe_a AS "describeA",
+			a.create_id AS "createId",
+			a.create_time AS "createTime",
+			a.good_number AS "goodNumber",
+			a.click_number AS "clickNumber",
+			a.major_type AS "majorType",
+			a.update_time AS "updateTime",
+			b.state AS state,
+			c.start_time AS startTime
+		FROM ys_course a  
+		JOIN ys_pro_course b on a.id = b.cou_id  
+		JOIN ys_project c on b.pro_id = c.id
+			<include refid="ysProjectJoins"/>
+		<where>
+			b.pro_id = #{proId} 
+			<if test="courseName != null and courseName != ''">
+				AND a.course_name = #{courseName}
+			</if>
+			<if test="startTime != null and startTime != ''">
+				AND c.start_time > #{startTime} 
+			</if>
+			<if test="endTime != null and endTime != ''">
+				AND  #{endTime} > c.end_time
+			</if>
+			<if test="createId != null and createId != ''">
+				AND create_id = #{createId}
+			</if>
+			<if test="state != null and state != ''">
+				AND b.state = #{state}
+			</if>
+			<if test="courseClass != null and courseClass != ''">
+				AND a.course_class = #{courseClass} 
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<!-- 删除课件与项目的关联 -->
+	<delete id="delCoursePro" parameterType="map">
+		DELETE FROM ys_pro_course   
+		<where>
+			<if test="proId != null and proId != ''">
+				AND pro_id = #{proId} 
+			</if>
+			<if test="couId != null and couId != ''">
+				AND cou_id = #{couId}  
+			</if>
+		</where> 
+	</delete>
+	
+	<!-- 删除课件项目学员的关联关系 -->
+	<delete id="delCourseUser" parameterType="map">
+		DELETE FROM ys_course_user    
+		WHERE pro_id = #{proId} AND cou_id = #{couId} 
+	</delete>
+	
+	<!--课件项目启用禁用状态-->
+	<update id="updateCourseState">
+		UPDATE ys_pro_course SET 
+			state = #{state}  
+		WHERE pro_id = #{proId} AND cou_id = #{couId} 
+	</update>
+	
+	<!-- 根据项目id 课件id 查询用户的培训课件的信息 -->
+	<select id="findPageCourseUser" resultType="YsCourseUserPojo" >
+		SELECT 
+			a.id AS id,
+			a.progress AS progress,
+			b.user_name AS userName,
+			b.full_name AS fullName,
+			c.dep_name AS depName,
+			d.course_name AS courseName,
+			e.pro_name AS proName,
+			e.start_time AS startTime,
+			e.end_time AS endTime
+		FROM ys_course_user a  
+		JOIN ys_user b on a.user_id = b.id    
+		JOIN ys_department c on b.dep_id = c.id   
+		JOIN ys_course d on a.cou_id = d.id   
+		JOIN ys_project e on e.id = a.pro_id   
+			<include refid="ysProjectJoins"/>
+		<where>
+			a.pro_id = #{proId} AND a.cou_id = #{couId}  
+			<if test="depId != null and depId != ''">
+				AND c.id = #{depId}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<!-- 删除课件项目学员的关联关系根据id -->
+	<delete id="delCourseUserById" parameterType="map">
+		DELETE FROM ys_course_user    
+		WHERE id = #{id}  
+	</delete>
+	
+	<!-- 查看考试 -->
+	<select id="findPageYsTestByProId" resultType="YsTest" >
+		SELECT 
+			a.test_name AS testName,
+			c.dep_name AS depName,
+			a.test_number AS testNumber,
+			a.start_time AS startTime,
+			a.test_time AS testTime
+		FROM ys_test a
+		JOIN ys_project b on a.pro_id = b.id
+		JOIN ys_department c on b.dep_id = c.id
+		<where>
+			a.pro_id = #{proId}  
+			<!-- <if test="depId !=null and depId != ''">
+				AND c.id = #{depId}
+			</if> -->
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<!-- 删除项目下考试 -->
+	<delete id="delTest" parameterType="map">
+		DELETE FROM ys_test  
+		<where>
+			<if test="proId != null and proId != ''">
+				AND pro_id = #{proId} 
+			</if>
+			<if test="testId != null and testId != ''">
+				AND id = #{testId}  
+			</if>
+		</where> 
+	</delete>
+	
+</mapper>

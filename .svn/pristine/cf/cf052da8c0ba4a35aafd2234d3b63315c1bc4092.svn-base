@@ -1,0 +1,145 @@
+
+// 添加项目  培训课件
+function openCourse(title,url,width,height){
+	
+	top.layer.open({
+	    type: 2,  
+	    area: [width, height],
+	    title: title,
+        maxmin: false, //开启最大化最小化按钮
+	    content: url ,
+	    btn: ['确定','关闭'],
+	    yes: function(index, layero){
+	    	var iframe_course = $(layero).find("iframe")[0].contentWindow;
+	    	//var body = layer.getChildFrame('body', index);
+	    	course_show(iframe_course.getCourseIds());
+	    	top.layer.close(index);
+	    },
+	    btn2: function(index, layero){
+	    	$(".course_list").show();
+			$(".test_list").hide();
+		},
+	    cancel: function(index){ 
+	       }
+	}); 
+	
+}
+
+//添加项目 考试试卷
+function openTest(title,url,width,height,target){
+	
+	var depNames = $(".filter-option").text();
+	url = url + "?" + depNames;
+	
+	top.layer.open({
+		
+	    type: 2,  
+	    area: [width, height],
+	    title: title,
+	    content: url ,
+	    btn: ['保存','关闭'],
+	    yes: function(index, layero){
+	    	var iframe_course = $(layero).find("iframe")[0].contentWindow;
+	    	var body = top.layer.getChildFrame('body', index);
+	    	var inputForm = body.find('#inputForm');
+	    	var iframeWin = layero.find('iframe')[0];
+	    	var val = iframe_course.test_submit(ysTestPojoId);
+	    	if(val != false){
+	    		 var top_iframe;
+		         if(target){
+		        	 top_iframe = target;//如果指定了iframe，则在改frame中跳转
+		         }else{
+		        	 top_iframe = top.getActiveTab().attr("name");//获取当前active的tab的iframe 
+		         }
+		         inputForm.attr("target",top_iframe);//表单提交成功后，从服务器返回的url在当前tab中展示
+		         if(iframeWin.contentWindow.doSubmit()){
+		        	 test_show(val);
+				     ysTestPojoId = ysTestPojoId + 1;
+		         }
+	    	}
+	    	
+	    },
+	    btn2: function(index, layero){
+	    	test_show("");
+		},
+	    cancel: function(index){ 
+	       }
+	}); 
+	
+}
+
+
+//添加项目 选择试题
+function openQuesion(title,url,width,height,item,strId){
+	
+	top.layer.open({
+	    type: 2,  
+	    area: [width, height],
+	    title: title,
+	    content: url ,
+	    btn: ['确定','关闭'],
+	    yes: function(index, layero){
+	    	var iframe_course = $(layero).find("iframe")[0].contentWindow;
+	    	add_que(iframe_course.getQueDiv(strId), item);
+	    	
+	    	top.layer.close(index);
+	    },
+	    btn2: function(index, layero){
+		},
+	    cancel: function(index){ 
+	       }
+	}); 
+	
+}
+
+/**
+ * 随机出题
+ */
+function openQuesion2(title,url,width,height,item){
+	
+	top.layer.open({
+	    type: 2,  
+	    area: [width, height],
+	    title: title,
+	    content: url ,
+	    btn: ['确定','关闭'],
+	    yes: function(index, layero){
+	    	var iframe_course = $(layero).find("iframe")[0].contentWindow;
+	    	var str = iframe_course.getQueRanDiv();
+	    	if(str != false){
+	    		add_que_ran(str,item)
+		    	top.layer.close(index);
+	    	}
+	    },
+	    btn2: function(index, layero){
+		},
+	    cancel: function(index){ 
+	       }
+	}); 
+	
+}
+
+/**
+ * 随机出卷
+ */
+function openQuesion3(title,url,width,height,item){
+	
+	top.layer.open({
+	    type: 2,  
+	    area: [width, height],
+	    title: title,
+	    content: url ,
+	    btn: ['确定','关闭'],
+	    yes: function(index, layero){
+	    	var iframe_course = $(layero).find("iframe")[0].contentWindow;
+	    	var str = iframe_course.getQuePlanDiv();
+	    	add_que_plan(str,item);
+	    	top.layer.close(index);
+	    },
+	    btn2: function(index, layero){
+		},
+	    cancel: function(index){ 
+	       }
+	}); 
+	
+}

@@ -1,0 +1,121 @@
+/**
+ * Copyright &copy; 2015-2020 <a href="http://www.jeeplus.org/">JeePlus</a> All rights reserved.
+ */
+package com.jeeplus.modules.project.service;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.jeeplus.common.persistence.Page;
+import com.jeeplus.common.service.CrudService;
+import com.jeeplus.modules.entity.YsEvaluate;
+import com.jeeplus.modules.entity.YsProject;
+import com.jeeplus.modules.project.dao.YsProjectDao;
+
+/**
+ * 项目管理Service
+ * @author wdy
+ * @version 2018-05-17
+ */
+@Service
+@Transactional(readOnly = true)
+public class YsProjectService extends CrudService<YsProjectDao, YsProject> {
+	
+	@Autowired
+	private YsProjectDao ysProjectDao;
+
+	public YsProject get(String id) {
+		return super.get(id);
+	}
+	
+	public List<YsProject> findList(YsProject ysProject) {
+		return super.findList(ysProject);
+	}
+	
+	public Page<YsProject> findPage(Page<YsProject> page, YsProject ysProject) {
+		return super.findPage(page, ysProject);
+	}
+	
+	@Transactional(readOnly = false)
+	public void save(YsProject ysProject) {
+		super.save(ysProject);
+	}
+	
+	@Transactional(readOnly = false)
+	public void delete(YsProject ysProject) {
+		super.delete(ysProject);
+	}
+	
+	/**
+	 * 获取项目评价信息
+	 */
+	@Transactional(readOnly = false)
+	public YsEvaluate findeEvaluate(YsEvaluate ysEvaluate) {
+		// 获取项目评分 (几颗星)
+		List<YsEvaluate> EvaList = ysProjectDao.findEva(ysEvaluate);
+		// 获取项目评价信息
+		ysEvaluate = ysProjectDao.findEvaluate(ysEvaluate);
+		int one = 0, two = 0, three = 0, four = 0, five = 0;
+		for (int i = 0; i < EvaList.size(); i++) {
+			if(EvaList.get(i).getEvaluate() == 1){
+				one++;
+			} else if(EvaList.get(i).getEvaluate() == 2){
+				two++;
+			} else if(EvaList.get(i).getEvaluate() == 3){
+				three++;
+			} else if(EvaList.get(i).getEvaluate() == 4){
+				four++;
+			} else if(EvaList.get(i).getEvaluate() == 5){
+				five++;
+			}
+		}
+		List<Integer> evaluateList = Arrays.asList(new Integer[]{one, two, three, four, five});
+		ysEvaluate.setEvaluateList(evaluateList);
+		return ysEvaluate;
+	}
+
+	/**
+	 * 项目课件关联关系
+	 */
+	@Transactional(readOnly = false)
+	public void saveCourse(Map map) {
+		ysProjectDao.saveCourse(map);
+	}
+	
+	/**
+	 * 保存并返回主键
+	 */
+	@Transactional(readOnly = false)
+	public int saveYsPro(YsProject ysProject) {
+		return ysProjectDao.saveYsPro(ysProject);
+	}
+
+	/**
+	 * 项目试卷关联关系
+	 */
+	@Transactional(readOnly = false)
+	public void savePaper(Map map) {
+		ysProjectDao.savePaper(map);
+	}
+
+	/**
+	 * 项目学员关联关系
+	 */
+	@Transactional(readOnly = false)
+	public void saveUser(Map map) {
+		ysProjectDao.saveUser(map);
+	}
+
+	/**
+	 * 项目部门关联关系
+	 */
+	public void saveDep(Map map) {
+		ysProjectDao.saveDep(map);
+	}
+	
+}

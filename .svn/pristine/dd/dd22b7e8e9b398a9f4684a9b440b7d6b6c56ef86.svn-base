@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.project.dao.YsProjectVueDao">
+
+	<sql id="ysProjectColumns">
+		a.id AS "id",
+		a.pro_name AS "proName",
+		a.pro_class_id AS
+		"proClassId",
+		a.start_time AS "startTime",
+		a.end_time AS "endTime",
+		a.course_type AS "courseType",
+		a.study_count AS "studyCount",
+		a.evaluate AS "evaluate",
+		a.goal AS "goal",
+		a.introduce AS "introduce",
+		a.course_number AS "courseNumber",
+		a.create_time AS "createTime",
+		a.total_score AS "totalScore",
+		a.update_time AS "updateTime",
+		a.create_id AS "createId"
+	</sql>
+
+	<sql id="ysProjectJoins">
+	</sql>
+	<!--项目管理-查看试卷 -->
+	<select id="selectByProPaper" resultType="com.jeeplus.modules.project.entity.YsProPaperVue">
+		select b.test_name as testName,c.dep_name as depName,b.test_number as
+		testNumber,b.id as Id,
+		b.start_time as startTime,b.test_time as
+		testTime,
+		<include refid="ysProjectColumns" />
+		from ys_project a left join ys_test b
+		on a.Id=b.pro_id
+		left JOIN
+		ys_department c
+		on a.dep_id=c.Id
+		left join ys_pro_class d
+		on
+		a.pro_class_id=d.Id
+		<where>
+			<if test="proid != null and proid != ''">
+				a.Id=#{proid}
+			</if>
+			<if test="testName != null and testName != ''">
+				and b.test_name like concat(concat('%',#{testName}),'%')
+			</if>
+			<if test="depId != null and depId != ''">
+				and a.Id=#{depId}
+			</if>
+			<if test="testNumber != null and testNumber != ''">
+				and b.test_number=#{testNumber}
+			</if>
+			<if
+				test="startTime != null and startTime != '' and eTime != null and eTime != ''">
+				and b.start_time BETWEEN #{startTime}
+				and #{eTime}
+			</if>
+		</where>
+		limit #{page},#{limit}
+	</select>
+	<!-- 查看试卷行数 -->
+	<select id="selectByProPaperCount" resultType="Integer">
+		select count(*)
+		from ys_project a left join ys_test b
+		on a.Id=b.pro_id
+		left JOIN ys_department c
+		on a.dep_id=c.Id
+		left join ys_pro_class d
+		on
+		a.pro_class_id=d.Id
+		<where>
+			<if test="proid != null and proid != ''">
+				a.Id=#{proid}
+			</if>
+			<if test="testName != null and testName != ''">
+				and b.test_name like concat(concat('%',#{testName}),'%')
+			</if>
+			<if test="depId != null and depId != ''">
+				and a.Id=#{depId}
+			</if>
+			<if test="testNumber != null and testNumber != ''">
+				and b.test_number=#{testNumber}
+			</if>
+			<if
+				test="startTime != null and startTime != '' and eTime != null and eTime != ''">
+				and b.start_time BETWEEN #{startTime}
+				and #{eTime}
+			</if>
+		</where>
+	</select>
+	<!-- 查看 -->
+	<select id="findByPapScore" resultType="com.jeeplus.modules.project.entity.YsPaPerScoreVue">
+		select *,b.user_name as userName,b.full_name as xingming,a.score as
+		score,d.dep_name as depName,a.commit_time as committime,
+		a.evaluate_time as evaluatetime,a.ispath as ispath,e.pro_name as proName,c.test_name as testName,
+		c.start_time as startTime,c.end_time as endTime,c.test_time as testTime
+		from ys_test_score a
+		join ys_user b
+		on a.user_id=b.Id
+		join ys_test c
+		on a.pap_id=c.Id
+		join
+		ys_department d
+		on b.dep_id=d.Id
+		join ys_project e
+		on e.Id=a.pro_id
+		<where>
+			<if test="papId != null and papId != ''">
+				a.pap_id =#{papId}
+			</if>
+			<if test="depId != null and depId != ''">
+				and a.dep_id =#{depId}
+			</if>
+			<if test="ispath != null and ispath != ''">
+				and a.ispath =#{ispath}
+			</if>
+			<if test="xingming != null and xingming != ''">
+				and b.full_name like concat(concat('%',#{xingming}),'%')
+			</if>
+			<if test="ordeykey != null and ordeykey != ''">
+				ORDER BY a.score ${ordeykey}
+			</if>
+		</where>
+		limit #{page},#{limit}
+	</select>
+	<!-- 行数 -->
+	<select id="findByPapScoreCount" resultType="Integer">
+		select count(*)
+		from ys_test_score a join ys_user b
+		on a.user_id=b.Id
+		join ys_test c
+		on a.pap_id=c.Id
+		join ys_department d
+		on b.dep_id=d.Id
+		<where>
+			<if test="papId != null and papId != ''">
+				a.pap_id =#{papId}
+			</if>
+			<if test="depId != null and depId != ''">
+				and a.dep_id =#{depId}
+			</if>
+			<if test="ispath != null and ispath != ''">
+				and a.ispath =#{ispath}
+			</if>
+			<if test="xingming != null and xingming != ''">
+				and b.full_name like concat(concat('%',#{xingming}),'%')
+			</if>
+			<if test="ordeykey != null and ordeykey != ''">
+				ORDER BY a.score ${ordeykey}
+			</if>
+		</where>
+	</select>
+
+	<select id="get" resultType="YsProject">
+		SELECT
+		<include refid="ysProjectColumns" />
+		FROM ys_project a
+		<include refid="ysProjectJoins" />
+		WHERE a.id = #{id}
+	</select>
+	<!-- 教师端项目管理展示 -->
+	<select id="findAllByRole" resultType="YsProject">
+		select
+		<include refid="ysProjectColumns" />
+		,
+		b.dep_name as depName,c.class_name as proClassName
+		from ys_project a
+		left join ys_department b
+		on a.dep_id=b.Id
+		left join ys_pro_class c
+		on
+		a.pro_class_id=c.Id
+		<where>
+
+			<if test="createId != null and createId != ''">
+				a.create_id=#{createId}
+			</if>
+			<if test="depId != null and depId != ''">
+				and a.Id=#{depId}
+			</if>
+			<if test="proName != null and proName != ''">
+
+				and a.pro_name like concat(concat('%',#{proName}),'%')
+			</if>
+			<if test="proClassName != null and proClassName != ''">
+				and a.pro_class_id=#{proClassName}
+			</if>
+			<if
+				test="create_time != null and create_time != '' and eTime != null and eTime != ''">
+				and a.create_time BETWEEN #{create_time}
+				and #{eTime}
+			</if>
+
+		</where>
+		limit #{page}, #{rows}
+	</select>
+	<!-- 教师端项目管理展示行数 -->
+	<select id="findAllByRoleCount" resultType="Integer">
+
+		select count(*) from ys_project a
+		<where>
+
+			<if test="createId != null and createId != ''">
+				a.create_id=#{createId}
+			</if>
+			<if test="depId != null and depId != ''">
+				and a.Id=#{depId}
+			</if>
+			<if test="proName != null and proName != ''">
+
+				and a.pro_name like concat(concat('%',#{proName}),'%')
+			</if>
+			<if test="proClassName != null and proClassName != ''">
+				and a.pro_class_id=#{proClassName}
+			</if>
+			<if
+				test="create_time != null and create_time != '' and eTime != null and eTime != ''">
+				and a.create_time BETWEEN #{create_time}
+				and #{eTime}
+			</if>
+
+		</where>
+		</select>
+<!-- 项目管理删除 -->
+<update id="deleteByid" >
+	DELETE from ys_project
+		WHERE Id = #{id}
+</update>
+<!-- 项目管理课程删除 -->
+<update id="deleteProCouseByid" >
+	DELETE from ys_pro_course
+		WHERE Id = #{id}
+</update>
+<!-- 项目管理课程删除个人进度 -->
+<update id="deleteProCouseStuByid" >
+	DELETE from ys_test_score
+		WHERE Id = #{id}
+</update>
+<!-- 项目管理删除试卷 -->
+<update id="deleteProTestByid" >
+	DELETE from ys_test
+		WHERE Id = #{id}
+</update>
+<!-- 项目管理删除试卷个人考试成绩 -->
+<update id="deleteProTestScoreByid" >
+	DELETE from ys_test_score
+		WHERE Id = #{id}
+</update>
+<select id="findProFen" resultType="com.jeeplus.modules.project.entity.YsyProclassVue">
+select * from ys_pro_class
+</select>
+	
+
+
+
+
+
+
+
+</mapper>

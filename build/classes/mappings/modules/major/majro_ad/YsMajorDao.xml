@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.major.dao.majro_ad.YsMajorDao">
+    
+    <select id="YsMajorSelectAll" resultType="YsMajor">
+        SELECT id,major_name FROM ys_major
+    </select>
+    
+	<sql id="ysMajorColumns">
+		a.id AS "id",
+		a.major_name AS "majorName"
+	</sql>
+	
+	<sql id="ysMajorJoins">
+	</sql>
+	
+    
+	<select id="get" resultType="YsMajor" >
+		SELECT 
+			<include refid="ysMajorColumns"/>
+		FROM ys_major a
+		<include refid="ysMajorJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="YsMajor" >
+		SELECT 
+			<include refid="ysMajorColumns"/>
+		FROM ys_major a
+		<include refid="ysMajorJoins"/>
+		<where>
+			
+			<if test="id != null and id != ''">
+				AND a.id = #{id}
+			</if>
+			<if test="majorName != null and majorName != ''">
+				AND a.major_name = #{majorName}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="YsMajor" >
+		SELECT 
+			<include refid="ysMajorColumns"/>
+		FROM ys_major a
+		<include refid="ysMajorJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO ys_major(
+			major_name
+		) VALUES (
+			#{majorName}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE ys_major SET 	
+			major_name = #{majorName}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM ys_major
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE ys_major SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="YsMajor" statementType="STATEMENT">
+		select * FROM ys_major  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

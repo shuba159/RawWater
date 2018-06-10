@@ -1,0 +1,356 @@
+/**
+ * Copyright &copy; 2015-2020 <a href="http://www.jeeplus.org/">JeePlus</a> All rights reserved.
+ */
+package com.jeeplus.modules.project.web;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import com.jeeplus.common.config.Global;
+import com.jeeplus.common.persistence.Page;
+import com.jeeplus.common.utils.MyBeanUtils;
+import com.jeeplus.common.utils.StringUtils;
+import com.jeeplus.common.web.BaseController;
+import com.jeeplus.modules.entity.YsPaper;
+import com.jeeplus.modules.entity.YsPaperPlan;
+import com.jeeplus.modules.entity.YsQuestions;
+import com.jeeplus.modules.entity.YsTest;
+import com.jeeplus.modules.project.entity.YsTestPojo;
+import com.jeeplus.modules.project.service.YsPaperPlanService;
+import com.jeeplus.modules.project.service.YsPaperService;
+import com.jeeplus.modules.project.service.YsTestService;
+import com.jeeplus.modules.project.utils.FnsUtils;
+import com.jeeplus.modules.project.utils.ProjectMothed;
+import com.jeeplus.modules.questions.service.questions_as.YsQuestionsService;
+
+/**
+ * 考试Controller
+ * @author wdy
+ * @version 2018-05-29
+ */
+@Controller
+@RequestMapping(value = "${adminPath}/project/ysTest")
+public class YsTestController extends BaseController {
+
+	@Autowired
+	private YsTestService ysTestService;
+	
+	@Autowired
+	private YsQuestionsService ysQuestionsService;
+	
+	@Autowired
+	private YsPaperPlanService ysPaperPlanService;
+	
+	@Autowired
+	private YsPaperService ysPaperService;
+	
+	@ModelAttribute
+	public YsTest get(@RequestParam(required=false) String id) {
+		YsTest entity = null;
+		if (StringUtils.isNotBlank(id)){
+			entity = ysTestService.get(id);
+		}
+		if (entity == null){
+			entity = new YsTest();
+		}
+		return entity;
+	}
+	
+	/**
+	 * 考试列表页面
+	 */
+//	@RequiresPermissions("project:ysTest:list")
+	@RequestMapping(value = {"list", ""})
+	public String list(YsTest ysTest, HttpServletRequest request, HttpServletResponse response, Model model) {
+		Page<YsTest> page = ysTestService.findPage(new Page<YsTest>(request, response), ysTest); 
+		model.addAttribute("page", page);
+		return "modules/project/ysMsTestList";
+	}
+
+	/**
+	 * 查看，增加，编辑考试表单页面
+	 */
+//	@RequiresPermissions(value={"project:ysTest:view","project:ysTest:add","project:ysTest:edit"},logical=Logical.OR)
+	@RequestMapping(value = "form")
+	public String form(YsTest ysTest, Model model) {
+		model.addAttribute("ysTest", ysTest);
+		return "modules/project/ysTestForm";
+	}
+	
+	/**
+	 * 增加
+	 */
+	@RequestMapping(value = "addForm")
+	public String addForm(YsTestPojo ysTestPojo, Model model) {
+		model.addAttribute("ysTestPojo", ysTestPojo);
+		return "modules/project/ysTestForm";
+	}
+	
+	/**
+	 * 临时保存
+	 */
+	@RequestMapping(value = "testSave")
+	public String testSave(YsTestPojo ysTestPojo, Model model, RedirectAttributes redirectAttributes, HttpSession session, Map<Object, Object> map) {
+		
+		Integer sessionTestId = (Integer) session.getAttribute("sessionTestId");
+		if(sessionTestId == null || sessionTestId == 0){
+			sessionTestId = 1;
+		}
+		sessionTestId += 1;
+		session.setAttribute("sessionTestId", sessionTestId);
+		
+		Integer papId = ysTestPojo.getPapId();
+		Integer planId = ysTestPojo.getPlanId();
+		String queIds = ysTestPojo.getQueIds();
+		String ranIds = ysTestPojo.getRanIds();
+		if(papId != null && papId != 0){
+			map.put("papId", papId);
+			List<YsQuestions> findQuesionList = ysPaperService.findQuesionList(map);
+			ysTestPojo.setYsQuestionsList(findQuesionList);
+		}else if(planId != null && planId != 0){
+			map.put("planId", planId);
+			List<YsQuestions> findQuesionList = ysPaperPlanService.findQuesionByPlanId(map);
+			ysTestPojo.setYsQuestionsList(findQuesionList);
+		}else{
+			List<YsQuestions> ysQuestionsList = new ArrayList<>();
+			if(StringUtils.isNotBlank(queIds)){
+				String[] split = queIds.split(",");
+				for (int i = 0; i < split.length; i++) {
+					String[] split2 = split[i].split(":");
+					YsQuestions ysQuestions = ysQuestionsService.get(split2[0]);
+					ysQuestions.setQueScore(Integer.parseInt(split2[1]));
+					ysQuestionsList.add(ysQuestions);
+				}
+			}
+			if(StringUtils.isNotBlank(ranIds)){
+				String[] split = ranIds.split(",");
+				for (int i = 0; i < split.length; i++) {
+					String[] split2 = split[i].split(":");
+					// 根据条件随机抽题 
+					map.put("questionType", split2[1]);
+					map.put("level", split2[0]);
+					List<YsQuestions> findQuesionByRandom = ysPaperPlanService.findQuesionByRandom(map);
+					int[] randomCommon = ProjectMothed.randomCommon(0, findQuesionByRandom.size()-1, Integer.parseInt(split2[2]));
+					for (int j = 0; j < randomCommon.length; j++) {
+						YsQuestions ysQuestions = findQuesionByRandom.get(randomCommon[j]);
+						ysQuestions.setQueScore(Integer.parseInt(split2[3]));
+						ysQuestionsList.add(ysQuestions);
+					}
+				}
+			}
+			ysTestPojo.setYsQuestionsList(ysQuestionsList);
+		}
+		
+		// 存入session中
+		ArrayList<YsTestPojo> ysTestPojoList = (ArrayList<YsTestPojo>) session.getAttribute("ysTestPojoList");
+		if(ysTestPojoList == null || ysTestPojoList.size() == 0){
+			ArrayList<YsTestPojo> ysTestPojoList1 = new ArrayList<>();
+			ysTestPojoList1.add(ysTestPojo);
+			session.setAttribute("ysTestPojoList", ysTestPojoList1);
+		}else{
+			ysTestPojoList.add(ysTestPojo);
+			session.setAttribute("ysTestPojoList", ysTestPojoList);
+		}
+		addMessage(redirectAttributes, "考试已添加");
+		return "modules/project/ysTestForm";
+	}
+
+	/**
+	 * 保存考试
+	 */
+//	@RequiresPermissions(value={"project:ysTest:add","project:ysTest:edit"},logical=Logical.OR)
+	@RequestMapping(value = "save")
+	public String save(YsTest ysTest, Model model, RedirectAttributes redirectAttributes) throws Exception{
+		if (!beanValidator(model, ysTest)){
+			return form(ysTest, model);
+		}
+		if(!ysTest.getIsNewRecord()){//编辑表单保存
+			YsTest t = ysTestService.get(ysTest.getId());//从数据库取出记录的值
+			MyBeanUtils.copyBeanNotNull2Bean(ysTest, t);//将编辑表单中的非NULL值覆盖数据库记录中的值
+			ysTestService.save(t);//保存
+		}else{//新增表单保存
+			ysTestService.save(ysTest);//保存
+		}
+		addMessage(redirectAttributes, "保存考试成功");
+		return "redirect:"+Global.getAdminPath()+"/project/ysTest/?repage";
+	}
+	
+	/**
+	 * 删除考试
+	 */
+//	@RequiresPermissions("project:ysTest:del")
+	@RequestMapping(value = "delete")
+	public String delete(YsTest ysTest, RedirectAttributes redirectAttributes) {
+		ysTestService.delete(ysTest);
+		addMessage(redirectAttributes, "删除考试成功");
+		return "redirect:"+Global.getAdminPath()+"/project/ysTest/?repage";
+	}
+	
+	/**
+	 * 批量删除考试
+	 */
+//	@RequiresPermissions("project:ysTest:del")
+	@RequestMapping(value = "deleteAll")
+	public String deleteAll(String ids, RedirectAttributes redirectAttributes) {
+		String idArray[] =ids.split(",");
+		for(String id : idArray){
+			ysTestService.delete(ysTestService.get(id));
+		}
+		addMessage(redirectAttributes, "删除考试成功");
+		return "redirect:"+Global.getAdminPath()+"/project/ysTest/?repage";
+	}
+	
+	/**
+	 * 试题列表
+	 */
+	@RequestMapping(value = {"quesionList"})
+	public String quesionList(YsQuestions ysQuestions, HttpServletRequest request, HttpServletResponse response, Model model) {
+		Page<YsQuestions> page = ysQuestionsService.findPage(new Page<YsQuestions>(request, response), ysQuestions);
+		model.addAttribute("page", page);
+		return "modules/project/ysQuestionsList";
+	}
+	
+	/**
+	 * 随机出题
+	 */
+	@RequestMapping(value = {"quesionRandom"})
+	public String quesionRandom(YsQuestions ysQuestions, HttpServletRequest request) {
+		int totalNum = ysQuestionsService.findTotalNum();
+		request.setAttribute("totalNum", totalNum);
+		return "modules/project/ysQueRandom";
+	}
+	
+	/**
+	 * 随机出卷
+	 */
+	@RequestMapping(value = {"paperRandom"})
+	public String paperRandom(YsPaperPlan ysPaperPlan, HttpServletRequest request) {
+		List<YsPaperPlan> paperPlanList = ysPaperPlanService.findList(ysPaperPlan);
+		request.setAttribute("paperPlanList", paperPlanList);
+		return "modules/project/ysPapRandom";
+	}
+	
+	
+	/**
+	 * 历史试卷
+	 */
+	@ResponseBody
+	@RequestMapping(value = {"papList"})
+	public String papList(Page<YsPaper> page1, YsPaper ysPaper, HttpServletRequest request, HttpServletResponse response, Model model) {
+		
+		String url = request.getContextPath()+Global.getAdminPath();
+		
+		Page<YsPaper> page = new Page<YsPaper>(request, response);
+		page.setPageNo(page1.getPageNo());
+		page.setPageSize(page1.getPageSize());
+		page = ysPaperService.findPage(page, ysPaper);
+		String str = "<table id=\"contentTable\" class=\"table table-striped table-bordered table-hover table-condensed dataTables-example dataTable\">" +
+			"<thead>" + 
+				"<tr>" + 
+					"<th> <input type=\"checkbox\" class=\"i-checks\"></th>" + 
+					"<th  class=\"sort-column id\">编号</th>" + 
+					"<th  class=\"sort-column papName\">试卷名称</th>" +
+					"<th  class=\"sort-column totalScore\">试卷总分</th>" +
+					"<th  class=\"sort-column passScore\">及格分数</th>" +
+					"<th  class=\"sort-column papType\">试卷类型 1.选择出题2.随机抽题3.随机出卷</th>" +
+					"<th  class=\"sort-column createId\">创建人</th>" +
+					"<th  class=\"sort-column updateTime\">更新时间</th>" +
+					"<th>操作</th>" + 
+				"</tr>" + 
+			"</thead>" +
+			"<tbody>" ;
+			SimpleDateFormat ft = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			String format = "";
+			String userName = "";
+			Integer typeNum = 0;
+			Integer createId = 0;
+			String papId = "";
+			List<YsPaper> ysPaperList = page.getList();
+			for (int i = 0; i < ysPaperList.size(); i++) {
+				createId = ysPaperList.get(i).getCreateId();
+				userName = FnsUtils.getUserByUserId(createId);
+				typeNum = ysPaperList.get(i).getPapType();
+				Date updateDate = ysPaperList.get(i).getUpdateTime();
+				format = ft.format(updateDate);
+				papId = ysPaperList.get(i).getId();
+				String papType = "";
+				if(typeNum == 1){
+					papType = "选择出题";
+				}else if(typeNum == 2){
+					papType = "随机抽题";
+				}else{
+					papType = "随机出卷";
+				}
+				str += "<tr>" + 
+								"<td><input type=\"checkbox\" id=\""+ papId +"\" class=\"i-checks pap_checked\" onclick=\"pap_checked(this)\"></td>" +
+								"<td> "+ (i+1) +" </td>" + 
+								"<td>"+ ysPaperList.get(i).getPapName() +"</td>" + 
+								"<td>" + ysPaperList.get(i).getTotalScore() + "</td>" +
+								"<td>" + ysPaperList.get(i).getPassScore() + "</td>" + 
+								"<td>" + papType + "</td>" + 
+								"<td>"+ userName + "</td>" + 
+								"<td>"+ format +"</td>" + 
+								"<td><a href=\"#\" onclick=\"windowOpen('" +url+ "/project/ysTest/showPaper?id="+ papId +"', '考试卷纸', '1300px', '700px')\" ><i class=\"fa fa-search-plus\"></i> 查看</a></td>" + 
+								"</tr>";
+			}
+			str += "</tbody></table>";	
+			str += ProjectMothed.getMyPage(page);
+		return str;
+	}
+	
+	/**
+	 * 查看卷纸
+	 */
+	@RequestMapping(value = {"showPaper"})
+	public String showPaper(YsPaper ysPaper, HttpServletRequest request, Map<Object, Object> map, Model model) {
+		ysPaper = ysPaperService.get(ysPaper.getId());
+		map.put("papId", ysPaper.getId());
+		// 根据试卷id查找试题
+		List<YsQuestions> ysQuestionsList = ysPaperService.findQuesionList(map);
+		model.addAttribute("ysPaper", ysPaper);
+		request.setAttribute("ysQuestionsList", ysQuestionsList);
+		return "modules/project/ysShowPaper";
+	}
+	
+	/**
+	 * 查看临时卷纸
+	 */
+	@RequestMapping(value = {"showPaper1"})
+	public String showPaper1(YsTestPojo ysTestPojo, HttpSession session, HttpServletRequest request, Model model, Map<Object, Object> map) {
+		String id = ysTestPojo.getId();
+		YsTestPojo ysTestPojo2 = null;
+		ArrayList<YsTestPojo> ysTestPojoList = (ArrayList<YsTestPojo>) session.getAttribute("ysTestPojoList");
+		for (int i = 0; i < ysTestPojoList.size(); i++) {
+			ysTestPojo2 = ysTestPojoList.get(i);
+			if(id.equals(ysTestPojo2.getId())){
+				YsPaper ysPaper = new YsPaper();
+				ysPaper.setPapName(ysTestPojo2.getYsTest().getTestName());
+				model.addAttribute("ysPaper", ysPaper);
+				
+				List<YsQuestions> ysQuestionsList = ysTestPojo2.getYsQuestionsList();
+				for (YsQuestions ysQuestions : ysQuestionsList) {
+					System.out.println(ysQuestions);
+				}
+				request.setAttribute("ysQuestionsList", ysQuestionsList);
+			}
+		}
+		return "modules/project/ysShowPaper";
+	}
+
+}

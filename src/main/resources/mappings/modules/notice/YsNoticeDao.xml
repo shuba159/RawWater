@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.notice.dao.YsNoticeDao">
+    
+	<sql id="ysNoticeColumns">
+		a.id AS "id",
+		a.pro_id AS "proId",
+		a.notice_name AS "noticeName",
+		a.notice_time AS "noticeTime",
+		a.dep_id AS "depId",
+		a.content AS "content",
+		a.notice_state AS "noticeState",
+		a.top_time AS "topTime",
+		a.creata_id AS "creataId",
+		a.creata_time AS "creataTime"
+	</sql>
+	
+	<sql id="ysNoticeJoins">
+	</sql>
+	
+    
+	<select id="get" resultType="YsNotice" >
+		SELECT 
+			<include refid="ysNoticeColumns"/>
+		FROM ys_notice a
+		<include refid="ysNoticeJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	 <select id="selectAllHomePage" resultType="YsNotice" >
+  select <include refid="ysNoticeColumns"/>,date_add(a.notice_time, interval a.top_time day) from ys_notice a 
+where a.notice_state=1 
+order by a.top_time desc,a.notice_time desc limit 0,5
+
+  </select>
+	
+	<select id="findList" resultType="YsNotice" >
+		SELECT 
+			<include refid="ysNoticeColumns"/>
+		FROM ys_notice a
+		<include refid="ysNoticeJoins"/>
+		<where>
+			
+			<if test="id != null and id != ''">
+				AND a.id = #{id}
+			</if>
+			<if test="proId != null and proId != ''">
+				AND a.pro_id = #{proId}
+			</if>
+			<if test="noticeName != null and noticeName != ''">
+				AND a.notice_name = #{noticeName}
+			</if>
+			<if test="noticeTime != null and noticeTime != ''">
+				AND a.notice_time = #{noticeTime}
+			</if>
+			<if test="depId != null and depId != ''">
+				AND a.dep_id = #{depId}
+			</if>
+			<if test="content != null and content != ''">
+				AND a.content = #{content}
+			</if>
+			<if test="noticeState != null and noticeState != ''">
+				AND a.notice_state = #{noticeState}
+			</if>
+			<if test="topTime != null and topTime != ''">
+				AND a.top_time = #{topTime}
+			</if>
+			<if test="creataId != null and creataId != ''">
+				AND a.creata_id = #{creataId}
+			</if>
+			<if test="creataTime != null and creataTime != ''">
+				AND a.creata_time = #{creataTime}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="YsNotice" >
+		SELECT 
+			<include refid="ysNoticeColumns"/>
+		FROM ys_notice a
+		<include refid="ysNoticeJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO ys_notice(
+			id,
+			pro_id,
+			notice_name,
+			notice_time,
+			dep_id,
+			content,
+			notice_state,
+			top_time,
+			creata_id,
+			creata_time
+		) VALUES (
+			#{id},
+			#{proId},
+			#{noticeName},
+			#{noticeTime},
+			#{depId},
+			#{content},
+			#{noticeState},
+			#{topTime},
+			#{creataId},
+			#{creataTime}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE ys_notice SET 	
+			pro_id = #{proId},
+			notice_name = #{noticeName},
+			notice_time = #{noticeTime},
+			dep_id = #{depId},
+			content = #{content},
+			notice_state = #{noticeState},
+			top_time = #{topTime},
+			creata_id = #{creataId},
+			creata_time = #{creataTime}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM ys_notice
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE ys_notice SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="YsNotice" statementType="STATEMENT">
+		select * FROM ys_notice  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

@@ -1,0 +1,50 @@
+/**
+ * Copyright &copy; 2015-2020 <a href="http://www.jeeplus.org/">JeePlus</a> All rights reserved.
+ */
+package com.jeeplus.modules.project.service;
+
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.jeeplus.common.persistence.Page;
+import com.jeeplus.common.service.CrudService;
+import com.jeeplus.modules.entity.YsProPaper;
+import com.jeeplus.modules.project.dao.YsProPaperDao;
+
+/**
+ * 项目试卷Service
+ * @author wdy
+ * @version 2018-05-21
+ */
+@Service
+@Transactional(readOnly = true)
+public class YsProPaperService extends CrudService<YsProPaperDao, YsProPaper> {
+
+	public YsProPaper get(String id) {
+		return super.get(id);
+	}
+	
+	public List<YsProPaper> findList(YsProPaper ysProPaper) {
+		return super.findList(ysProPaper);
+	}
+	
+	public Page<YsProPaper> findPage(Page<YsProPaper> page, YsProPaper ysProPaper) {
+		return super.findPage(page, ysProPaper);
+	}
+	
+	@Transactional(readOnly = false)
+	public void save(YsProPaper ysProPaper) {
+		super.save(ysProPaper);
+	}
+	
+	@Transactional(readOnly = false)
+	public void delete(YsProPaper ysProPaper) {
+		super.delete(ysProPaper);
+	}
+	
+	
+	
+	
+}

@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.stuscore.dao.YsStuPaperDao">
+    
+	<sql id="ysStuPaperColumns">
+		a.id AS "id",
+		a.user_id AS "userid",
+		a.dep_id AS "depId",
+		a.class_id AS "classId",
+		a.type_id AS "typeId",
+		a.que_id AS "queId",
+		a.is_right AS "isRight",
+		a.answer AS "answer"
+	</sql>
+	
+	<sql id="ysStuPaperJoins">
+		LEFT JOIN sys_user userid ON userid.id = a.user_id
+	</sql>
+	<select id="selectByTypeid" resultType="com.jeeplus.modules.stuscore.entity.ErrQuestion">
+	select 
+	 d.dep_name as depName,e.major_name as majorName,c.result_score as resultScore,
+	c.test_time as testTime, b.describes as describes,b.answer as answer, b.options as options,
+	b.analysis as analysis 
+	from ys_stu_paper a join ys_questions  b
+on a.que_id=b.Id  
+join ys_my_score c
+on c.pap_id=a.type_id
+join ys_department d
+on  a.dep_id=d.Id
+join ys_major e
+on a.class_id =e.id
+where a.type_id=#{typeId}
+	</select>
+    
+	<select id="get" resultType="YsStuPaper" >
+		SELECT 
+			<include refid="ysStuPaperColumns"/>
+		FROM ys_stu_paper a
+		<include refid="ysStuPaperJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="YsStuPaper" >
+		SELECT 
+			<include refid="ysStuPaperColumns"/>
+		FROM ys_stu_paper a
+		<include refid="ysStuPaperJoins"/>
+		<where>
+			
+			<if test="id != null and id != ''">
+				AND a.id = #{id}
+			</if>
+			<if test="userid != null and userid != ''">
+				AND a.user_id = #{userid}
+			</if>
+			<if test="depId != null and depId != ''">
+				AND a.dep_id = #{depId}
+			</if>
+			<if test="classId != null and classId != ''">
+				AND a.class_id = #{classId}
+			</if>
+			<if test="typeId != null and typeId != ''">
+				AND a.type_id = #{typeId}
+			</if>
+			<if test="queId != null and queId != ''">
+				AND a.que_id = #{queId}
+			</if>
+			<if test="isRight != null and isRight != ''">
+				AND a.is_right = #{isRight}
+			</if>
+			<if test="answer != null and answer != ''">
+				AND a.answer = #{answer}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="YsStuPaper" >
+		SELECT 
+			<include refid="ysStuPaperColumns"/>
+		FROM ys_stu_paper a
+		<include refid="ysStuPaperJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO ys_stu_paper(
+		
+			user_id,
+			dep_id,
+			class_id,
+			type_id,
+			que_id,
+			is_right,
+			answer
+		) VALUES (
+			
+			#{userid},
+			#{depId},
+			#{classId},
+			#{typeId},
+			#{queId},
+			#{isRight},
+			#{answer}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE ys_stu_paper SET 	
+			user_id = #{userid},
+			dep_id = #{depId},
+			class_id = #{classId},
+			type_id = #{typeId},
+			que_id = #{queId},
+			is_right = #{isRight},
+			answer = #{answer}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM ys_stu_paper
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE ys_stu_paper SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="YsStuPaper" statementType="STATEMENT">
+		select * FROM ys_stu_paper  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

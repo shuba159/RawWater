@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.forum.dao.YsForumDao">
+    
+    <select id="idSelectForum" resultType="java.lang.Integer">
+       SELECT COUNT(*) FROM ys_reply a WHERE a.forum_id= #{id} 
+    </select>
+    
+    <select id="idSelectYsForum" resultType="com.jeeplus.modules.entity.YsForum">
+       SELECT 
+       id AS id,
+       user_id AS userId,
+       forum_title AS forumTitle,
+       forumcontent AS forumcontent,
+       forum_time AS forumTime,
+       top_state AS topState,
+       see_number As seeNumber
+        FROM ys_forum a WHERE a.Id = #{id}
+    </select>
+    
+    <select id="idSelectReplay" resultType="com.jeeplus.modules.entity.YsReply">
+        SELECT 
+        id AS id , 
+        reply_content AS replyContent, 
+        forum_id AS forumId, 
+        reply_time AS replyTime, 
+        user_id AS userId 
+         FROM  ys_reply a WHERE a.forum_id = #{id}
+    </select>
+    
+	<sql id="ysForumColumns">
+		a.id AS "id",
+		a.user_id AS "userId",
+		a.forum_title AS "forumTitle",
+		a.forumcontent AS "forumcontent",
+		a.forum_time AS "forumTime",
+		a.top_state AS "topState",
+		a.see_number AS "seeNumber"
+	</sql>
+	
+	<sql id="ysForumJoins">
+	</sql>
+	
+    
+	<select id="get" resultType="YsForum" >
+		SELECT 
+			<include refid="ysForumColumns"/>
+		FROM ys_forum a
+		<include refid="ysForumJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="YsForum" >
+		SELECT 
+			<include refid="ysForumColumns"/>
+		FROM ys_forum a
+		<include refid="ysForumJoins"/>
+		<where>
+			
+			<if test="id != null and id != ''">
+				AND a.id = #{id}
+			</if>
+			<if test="forumTitle != null and forumTitle != ''">
+				AND a.forum_title = #{forumTitle}
+			</if>
+			<if test="forumTime != null and forumTime != ''">
+				AND a.forum_time = #{forumTime}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="YsForum" >
+		SELECT 
+			<include refid="ysForumColumns"/>
+		FROM ys_forum a
+		<include refid="ysForumJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO ys_forum(
+<!-- 			id, -->
+			user_id,
+			forum_title,
+			forumcontent,
+			forum_time,
+			top_state,
+			see_number
+		) VALUES (
+<!-- 			#{id}, -->
+			#{userId},
+			#{forumTitle},
+			#{forumcontent},
+			#{forumTime},
+			#{topState},
+			#{seeNumber}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE ys_forum SET 	
+			user_id = #{userId},
+			forum_title = #{forumTitle},
+			forumcontent = #{forumcontent},
+			forum_time = #{forumTime},
+			top_state = #{topState},
+			see_number = #{seeNumber}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM ys_forum
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE ys_forum SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="YsForum" statementType="STATEMENT">
+		select * FROM ys_forum  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

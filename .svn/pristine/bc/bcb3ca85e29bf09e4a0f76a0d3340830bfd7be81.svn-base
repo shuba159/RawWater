@@ -1,0 +1,167 @@
+/**
+ * Copyright &copy; 2015-2020 <a href="http://www.jeeplus.org/">JeePlus</a> All rights reserved.
+ */
+package com.jeeplus.modules.entity;
+
+import java.util.Date;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.jeeplus.common.persistence.DataEntity;
+
+/**
+ * 项目试卷Entity
+ * @author wdy
+ * @version 2018-05-21
+ */
+public class YsProPaper extends DataEntity<YsProPaper> {
+	
+	private static final long serialVersionUID = 1L;
+	private String testName;		// 考试名称
+	private String describes;		// 考试须知
+	private Date startTime;		// 考试开始时间
+	private Date endTime;		// 考试结束时间
+	private Integer testNumber;		// 考生考试的次数限制
+	private Integer paperState;		// 1.启用2.禁用
+	private Integer testTime;		// 答卷时长
+	private Integer testScore;		// 考试学分
+	private String optionData;		// 试卷试题信息json，不要只存ID，存全部题及答案。
+	private Integer papClassId;		//  考试分类外键  1.演示考试2.写生
+	private Integer depId;		// 所属部门
+	private Integer proId;		// 项目外键
+	private Integer isEva;		// 已评卷人数
+	private Integer notEva;		// 未评卷人数
+	private Integer passScore;	// 及格分数
+	
+	public YsProPaper() {
+		super();
+	}
+
+	public YsProPaper(String id){
+		super(id);
+	}
+
+	public String getTestName() {
+		return testName;
+	}
+
+	public void setTestName(String testName) {
+		this.testName = testName;
+	}
+
+	public String getDescribes() {
+		return describes;
+	}
+
+	public void setDescribes(String describes) {
+		this.describes = describes;
+	}
+	
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+	public Date getStartTime() {
+		return startTime;
+	}
+
+	public void setStartTime(Date startTime) {
+		this.startTime = startTime;
+	}
+	
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+	public Date getEndTime() {
+		return endTime;
+	}
+
+	public void setEndTime(Date endTime) {
+		this.endTime = endTime;
+	}
+
+	public Integer getTestNumber() {
+		return testNumber;
+	}
+
+	public void setTestNumber(Integer testNumber) {
+		this.testNumber = testNumber;
+	}
+
+	public Integer getPaperState() {
+		return paperState;
+	}
+
+	public void setPaperState(Integer paperState) {
+		this.paperState = paperState;
+	}
+
+	public Integer getTestTime() {
+		return testTime;
+	}
+
+	public void setTestTime(Integer testTime) {
+		this.testTime = testTime;
+	}
+
+	public Integer getTestScore() {
+		return testScore;
+	}
+
+	public void setTestScore(Integer testScore) {
+		this.testScore = testScore;
+	}
+
+	public String getOptionData() {
+		return optionData;
+	}
+
+	public void setOptionData(String optionData) {
+		this.optionData = optionData;
+	}
+
+	public Integer getPapClassId() {
+		return papClassId;
+	}
+
+	public void setPapClassId(Integer papClassId) {
+		this.papClassId = papClassId;
+	}
+
+	public Integer getDepId() {
+		return depId;
+	}
+
+	public void setDepId(Integer depId) {
+		this.depId = depId;
+	}
+
+	public Integer getProId() {
+		return proId;
+	}
+
+	public void setProId(Integer proId) {
+		this.proId = proId;
+	}
+
+	public Integer getIsEva() {
+		return isEva;
+	}
+
+	public void setIsEva(Integer isEva) {
+		this.isEva = isEva;
+	}
+	
+	public Integer getNotEva() {
+		return notEva;
+	}
+
+	public void setNotEva(Integer notEva) {
+		this.notEva = notEva;
+	}
+
+	public Integer getPassScore() {
+		return passScore;
+	}
+
+	public void setPassScore(Integer passScore) {
+		this.passScore = passScore;
+	}
+	
+	
+	
+}

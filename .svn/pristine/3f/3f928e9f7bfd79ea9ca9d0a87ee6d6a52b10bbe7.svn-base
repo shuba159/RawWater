@@ -1,0 +1,35 @@
+/**
+ * Copyright &copy; 2015-2020 <a href="http://www.jeeplus.org/">JeePlus</a> All rights reserved.
+ */
+package com.jeeplus.modules.project.dao;
+
+import java.util.List;
+import java.util.Map;
+
+import com.jeeplus.common.persistence.CrudDao;
+import com.jeeplus.common.persistence.annotation.MyBatisDao;
+import com.jeeplus.modules.entity.YsEvaluate;
+import com.jeeplus.modules.entity.YsProject;
+
+/**
+ * 项目管理DAO接口
+ * @author wdy
+ * @version 2018-05-17
+ */
+@MyBatisDao
+public interface YsProjectDao extends CrudDao<YsProject> {
+
+	YsEvaluate findEvaluate(YsEvaluate ysEvaluate);
+
+	List<YsEvaluate> findEva(YsEvaluate ysEvaluate);
+
+	void saveCourse(Map map);
+
+	int saveYsPro(YsProject ysProject);
+
+	void savePaper(Map map);
+
+	void saveUser(Map map);
+
+	
+}

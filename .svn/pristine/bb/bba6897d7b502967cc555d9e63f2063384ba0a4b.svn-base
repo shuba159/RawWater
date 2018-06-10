@@ -1,0 +1,364 @@
+/**
+ * Copyright &copy; 2015-2020 <a href="http://www.jeeplus.org/">JeePlus</a> All rights reserved.
+ */
+package com.jeeplus.modules.project.web;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import org.apache.shiro.authz.annotation.Logical;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import com.jeeplus.common.config.Global;
+import com.jeeplus.common.persistence.Page;
+import com.jeeplus.common.utils.MyBeanUtils;
+import com.jeeplus.common.utils.StringUtils;
+import com.jeeplus.common.web.BaseController;
+import com.jeeplus.modules.course.service.addcourse.YsCourseService;
+import com.jeeplus.modules.entity.YsCourse;
+import com.jeeplus.modules.entity.YsDepartment;
+import com.jeeplus.modules.entity.YsEvaluate;
+import com.jeeplus.modules.entity.YsPaper;
+import com.jeeplus.modules.entity.YsProject;
+import com.jeeplus.modules.entity.YsQuestions;
+import com.jeeplus.modules.entity.YsTest;
+import com.jeeplus.modules.entity.YsUser;
+import com.jeeplus.modules.project.entity.YsCoursePojo;
+import com.jeeplus.modules.project.entity.YsCourseUserPojo;
+import com.jeeplus.modules.project.entity.YsTestPojo;
+import com.jeeplus.modules.project.service.YsDepartmentService;
+import com.jeeplus.modules.project.service.YsPaperPlanService;
+import com.jeeplus.modules.project.service.YsPaperService;
+import com.jeeplus.modules.project.service.YsProjectService;
+import com.jeeplus.modules.project.service.YsStustateService;
+import com.jeeplus.modules.project.service.YsTestService;
+import com.jeeplus.modules.project.service.YsUserService;
+import com.jeeplus.modules.project.utils.ProjectMothed;
+
+/**
+ * 项目管理Controller
+ * @author wdy
+ * @version 2018-05-17
+ */
+@Controller
+@RequestMapping(value = "${adminPath}/project/ysProject")
+public class YsProjectController extends BaseController {
+
+	@Autowired
+	private YsProjectService ysProjectService;
+	
+	@Autowired
+	private YsCourseService ysCourseService;
+	
+	@Autowired
+	private YsUserService ysUserService;
+	
+	@Autowired
+	private YsPaperPlanService ysPaperPlanService;
+	
+	@Autowired
+	private YsTestService ysTestService;
+	
+	@Autowired
+	private YsPaperService ysPaperService;
+	
+	@Autowired
+	private YsDepartmentService ysDepartmentService;
+	
+	@ModelAttribute
+	public YsProject get(@RequestParam(required=false) String id) {
+		YsProject entity = null;
+		if (StringUtils.isNotBlank(id)){
+			entity = ysProjectService.get(id);
+		}
+		if (entity == null){
+			entity = new YsProject();
+		}
+		return entity;
+	}
+	
+	/**
+	 * 项目管理列表页面
+	 */
+//	@RequiresPermissions("project:ysProject:list")
+	@RequestMapping(value = {"list", ""})
+	public String list(YsProject ysProject, HttpServletRequest request, HttpServletResponse response, Model model) {
+		// 如果查询中有创建人条件
+		if(StringUtils.isNoneBlank(ysProject.getCreateName())){
+			YsUser ysUser = new YsUser();
+			ysUser.setFullName(ysProject.getCreateName());
+			ysUser = ysUserService.findUserId(ysUser);
+			ysProject.setCreateId(Integer.parseInt(ysUser.getId()));
+		}
+		Page<YsProject> page = ysProjectService.findPage(new Page<YsProject>(request, response), ysProject);
+		model.addAttribute("page", page);
+		return "modules/project/ysProjectList";
+	}
+
+	/**
+	 * 查看，增加，编辑项目管理表单页面
+	 */
+	@RequiresPermissions(value={"project:ysProject:view","project:ysProject:add","project:ysProject:edit"},logical=Logical.OR)
+	@RequestMapping(value = "form")
+	public String form(YsProject ysProject, Model model) {
+		model.addAttribute("ysProject", ysProject);
+		return "modules/project/ysProjectForm";
+	}
+
+	/**
+	 * 保存项目管理
+	 */
+	@RequiresPermissions(value={"project:ysProject:add","project:ysProject:edit"},logical=Logical.OR)
+	@RequestMapping(value = "save")
+	public String save(YsProject ysProject, Model model, RedirectAttributes redirectAttributes, Map<Object, Object> map, HttpSession session) throws Exception{
+		
+		try {
+			if (!beanValidator(model, ysProject)){
+				return form(ysProject, model);
+			}
+			if(!ysProject.getIsNewRecord()){//编辑表单保存
+				YsProject t = ysProjectService.get(ysProject.getId());//从数据库取出记录的值
+				MyBeanUtils.copyBeanNotNull2Bean(ysProject, t);//将编辑表单中的非NULL值覆盖数据库记录中的值
+				ysProjectService.save(t);//保存
+			}else{//新增表单保存
+				ysProjectService.saveYsProject(ysProject, map, session);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			addMessage(redirectAttributes, "保存项目管理失败");
+			return "redirect:"+Global.getAdminPath()+"/project/ysProject/form";
+		}
+		
+		addMessage(redirectAttributes, "保存项目管理成功");
+		return "redirect:"+Global.getAdminPath()+"/project/ysProject/form";
+	}
+	
+	/**
+	 * 删除项目管理
+	 */
+//	@RequiresPermissions("project:ysProject:del")
+	@RequestMapping(value = "delete")
+	public String delete(YsProject ysProject, RedirectAttributes redirectAttributes) {
+		ysProjectService.delete(ysProject);
+		addMessage(redirectAttributes, "删除项目管理成功");
+		return "redirect:"+Global.getAdminPath()+"/project/ysProject/?repage";
+	}
+	
+	/**
+	 * 批量删除项目管理
+	 */
+//	@RequiresPermissions("project:ysProject:del")
+	@RequestMapping(value = "deleteAll")
+	public String deleteAll(String ids, RedirectAttributes redirectAttributes) {
+		String idArray[] =ids.split(",");
+		for(String id : idArray){
+			ysProjectService.delete(ysProjectService.get(id));
+		}
+		addMessage(redirectAttributes, "删除项目管理成功");
+		return "redirect:"+Global.getAdminPath()+"/project/ysProject/?repage";
+	}
+	
+	/**
+	 * 获取评价信息
+	 */
+	@RequestMapping(value = {"evaluate"})
+	public String evaluate(YsEvaluate ysEvaluate, Model model) {
+		ysEvaluate = ysProjectService.findeEvaluate(ysEvaluate);
+		model.addAttribute("ysEvaluate", ysEvaluate);
+		return "modules/project/ysEvaluate";
+	}
+	
+	/**
+	 * 根据ids获取course集合
+	 */
+	@ResponseBody
+	@RequestMapping(value = {"courseListByIds"})
+	public String courseListByIds(YsCourse ysCourse, YsCoursePojo ysCoursePojo, HttpSession session, HttpServletRequest request) {
+		// 获取访问路径
+		String url = request.getContextPath()+Global.getAdminPath();
+		String courseIds = ysCoursePojo.getCourseIds();
+		// 获取session中id的数组
+		String[] courseIds_session = (String[]) session.getAttribute("courseIds_session");
+		// course集合
+		List<YsCourse> courseList = new ArrayList<>();
+		// 课件id数组补位空
+		if(StringUtils.isNoneBlank(courseIds)){
+			String[] courseIdsArray = courseIds.split(",");
+			if(courseIds_session == null){
+				// 第一次添加
+				for (int i = 0; i < courseIdsArray.length; i++) {
+					YsCourse course = ysCourseService.get(courseIdsArray[i]);
+					courseList.add(course);
+				}
+				session.setAttribute("courseIds_session", courseIdsArray);
+				String courseDiv = ProjectMothed.getCourseDiv(courseList, url);
+				return courseDiv;
+			}else{
+				// 第n次添加
+				List<String> list = Arrays.asList(courseIdsArray);
+				List<String> asList = new ArrayList<>(list);
+				for (int i = 0; i < courseIds_session.length; i++) {
+					if(!asList.contains(courseIds_session[i])){
+						asList.add(courseIds_session[i]);
+					}
+				}
+				courseIds_session = asList.toArray(new String[asList.size()]);
+				session.setAttribute("courseIds_session", courseIds_session);
+				for (int i = 0; i < asList.size(); i++) {
+					YsCourse course = ysCourseService.get(asList.get(i));
+					courseList.add(course);
+				}
+				String courseDiv = ProjectMothed.getCourseDiv(courseList, url);
+				return courseDiv;
+			}
+		}else{
+			if(courseIds_session == null){
+				return null;
+			}else{
+				for (int i = 0; i < courseIds_session.length; i++) {
+					YsCourse course = ysCourseService.get(courseIds_session[i]);
+					courseList.add(course);
+				}
+				String courseDiv = ProjectMothed.getCourseDiv(courseList, url);
+				return courseDiv;
+			}
+		}
+	}
+	
+	
+	/**
+	 * 查看课程
+	 */
+	@RequestMapping(value = "courseList")
+	public String courseList(YsCourse ysCourse, HttpServletRequest request, HttpServletResponse response, Model model) {
+		Page<YsCourse> page = ysProjectService.findPageCourseByProId(new Page<YsCourse>(request, response), ysCourse); 
+		List<YsCourse> list = page.getList();
+		for (YsCourse ysCourse2 : list) {
+			ysCourse2.setProId(ysCourse.getProId());
+		}
+		model.addAttribute("page", page);
+		return "modules/project/ysCourseList";
+	}
+		
+	/**
+	 * 删除课程
+	 */
+	@RequestMapping(value = "delCourse/{id}/{proId}")
+	public String delCourse(@PathVariable("id") String id, @PathVariable("proId") Integer proId, RedirectAttributes redirectAttributes, Map<Object, Object> map) {
+		map.put("proId", proId);
+		map.put("couId", id);
+		ysProjectService.delCourse(map);
+		addMessage(redirectAttributes, "删除项目课件成功");
+		return "redirect:"+Global.getAdminPath()+"/project/ysProject/courseList/?proId="+proId;
+	}
+	
+	/**
+	 * 批量删除课程
+	 */
+	@RequestMapping(value = "delAllCourse/{ids}/{proId}")
+	public String delAllCourse(@PathVariable("ids") String ids, @PathVariable("proId") Integer proId, RedirectAttributes redirectAttributes, Map<Object, Object> map) {
+		String idArray[] =ids.split(",");
+		for(String id : idArray){
+			// 删除课件与项目的关联关系 及学员的关联关系
+			map.put("proId", proId);
+			map.put("couId", id);
+			ysProjectService.delCourse(map);
+		}
+		addMessage(redirectAttributes, "删除项目课件成功");
+		return "redirect:"+Global.getAdminPath()+"/project/ysProject/courseList/?proId="+proId;
+	}
+	
+	/**
+	 * 批量修改启用 禁用 课程
+	 */
+	@RequestMapping(value = "updateAllCourseState/{ids}/{proId}/{state}")
+	public String updateAllCourseState(@PathVariable("ids") String ids, @PathVariable("proId") Integer proId, @PathVariable("state") Integer state, RedirectAttributes redirectAttributes, Map<Object, Object> map) {
+		String idArray[] =ids.split(",");
+		for(String id : idArray){
+			// 删除课件与项目的关联关系 及学员的关联关系
+			map.put("proId", proId);
+			map.put("couId", id);
+			map.put("state", state);
+			ysProjectService.updateCourseState(map);
+		}
+		addMessage(redirectAttributes, "修改课件状态成功");
+		return "redirect:"+Global.getAdminPath()+"/project/ysProject/courseList/?proId="+proId;
+	}
+	
+	/**
+	 * 查看课程 学习情况
+	 */
+	@RequestMapping(value ="userStudy/{couId}/{proId}")
+	public String userStudy(@PathVariable("couId") Integer couId, @PathVariable("proId") Integer proId, YsCourseUserPojo ysCourseUserPojo, HttpServletRequest request, HttpServletResponse response, Model model) {
+		// 根据项目id 课件id 查询用户的培训课件的信息
+		ysCourseUserPojo.setProId(proId);
+		ysCourseUserPojo.setCouId(couId);
+		Page<YsCourseUserPojo> page = ysProjectService.findPageCourseUser(new Page<YsCourseUserPojo>(request, response), ysCourseUserPojo); 
+		List<YsCourseUserPojo> list = page.getList();
+		for (YsCourseUserPojo ysCourseUserPojo2 : list) {
+			ysCourseUserPojo2.setProId(proId);
+			ysCourseUserPojo2.setCouId(couId);
+		}
+		model.addAttribute("page", page);
+		model.addAttribute("proId", proId);
+		return "modules/project/ysCourseUser";
+	}
+	
+	/**
+	 * 批量课程  对应  学员的信息
+	 */
+	@RequestMapping(value = "delAllCourseUser/{ids}/{couId}/{proId}")
+	public String delAllCourseUser(@PathVariable("ids") String ids, @PathVariable("couId") Integer couId, @PathVariable("proId") Integer proId, RedirectAttributes redirectAttributes, Map<Object, Object> map) {
+		String idArray[] =ids.split(",");
+		for(String id : idArray){
+			map.put("id", id);
+			ysProjectService.delCourseUserById(map);
+		}
+		addMessage(redirectAttributes, "删除项目课件成功");
+		return "redirect:"+Global.getAdminPath()+"/project/ysProject/userStudy/"+couId+"/"+proId;
+	}
+	
+	
+	
+	/**
+	 * 查看试卷
+	 */
+	@RequestMapping(value = {"paperList"})
+	public String paperList(YsTest ysTest, HttpServletRequest request, HttpServletResponse response, Model model) {
+		Page<YsTest> page = ysProjectService.findPageYsTestByProId(new Page<YsTest>(request, response), ysTest); 
+		List<YsTest> list = page.getList();
+		for (YsTest ysTest2 : list) {
+			ysTest2.setProId(ysTest.getProId());
+		}
+		model.addAttribute("page", page);
+		return "modules/project/ysTestList";
+	}
+	
+	/**
+	 * 删除试卷
+	 */
+	@RequestMapping(value = "delTest/{id}/{proId}")
+	public String delTest(@PathVariable("id") String id, @PathVariable("proId") Integer proId, RedirectAttributes redirectAttributes, Map<Object, Object> map) {
+		map.put("testId", id);
+		ysProjectService.delTest(map);
+		addMessage(redirectAttributes, "删除项目考试成功");
+		return "redirect:"+Global.getAdminPath()+"/project/ysProject/paperList/?proId="+proId;
+	}
+
+}

@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.project.dao.YsStustateDao">
+    
+	<sql id="ysStustateColumns">
+		a.id AS "id",
+		a.user_id AS "user.id",
+		a.pro_id AS "proId",
+		a.study_state AS "studyState",
+		a.progress AS "progress",
+		a.score AS "score",
+		a.evaluate AS "evaluate",
+		a.eva_content AS "evaContent",
+		user.name AS "user.name"
+	</sql>
+	
+	<sql id="ysStustateJoins">
+		LEFT JOIN sys_user user ON user.id = a.user_id
+	</sql>
+	
+    
+	<select id="get" resultType="YsStustate" >
+		SELECT 
+			<include refid="ysStustateColumns"/>
+		FROM ys_stustate a
+		<include refid="ysStustateJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="YsStustate" >
+		SELECT 
+			<include refid="ysStustateColumns"/>
+		FROM ys_stustate a
+		<include refid="ysStustateJoins"/>
+		<where>
+			
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="YsStustate" >
+		SELECT 
+			<include refid="ysStustateColumns"/>
+		FROM ys_stustate a
+		<include refid="ysStustateJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO ys_stustate(
+			id,
+			user_id,
+			pro_id,
+			study_state,
+			progress,
+			score,
+			evaluate,
+			eva_content
+		) VALUES (
+			#{id},
+			#{user.id},
+			#{proId},
+			#{studyState},
+			#{progress},
+			#{score},
+			#{evaluate},
+			#{evaContent}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE ys_stustate SET 	
+			user_id = #{user.id},
+			pro_id = #{proId},
+			study_state = #{studyState},
+			progress = #{progress},
+			score = #{score},
+			evaluate = #{evaluate},
+			eva_content = #{evaContent}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM ys_stustate
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE ys_stustate SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="YsStustate" statementType="STATEMENT">
+		select * FROM ys_stustate  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

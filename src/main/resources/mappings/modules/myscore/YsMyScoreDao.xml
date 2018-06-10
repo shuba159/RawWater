@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.myscore.dao.YsMyScoreDao">
+    
+	<sql id="ysMyScoreColumns">
+		a.id AS "id",
+		a.user_id AS "userid",
+		a.pap_id AS "papId",
+		a.test_time AS "testTime",
+		a.answer_time AS "answerTime",
+		a.test_type AS "testType",
+		a.total_score AS "totalScore",
+		a.path_score AS "pathScore",
+		a.result_score AS "resultScore",
+		a.error_number AS "errorNumber",
+		user.name AS "user.name"
+	</sql>
+	
+	<sql id="ysMyScoreJoins">
+		LEFT JOIN sys_user user ON userid = a.user_id
+	</sql>
+	
+    
+	<select id="get" resultType="YsMyScore" >
+		SELECT 
+			<include refid="ysMyScoreColumns"/>
+		FROM ys_my_score a
+		<include refid="ysMyScoreJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	<select id="findByPayid"  resultType="YsMyScore">
+	SELECT * FROM ys_my_score a where a.pap_id=#{papId}
+	</select>
+	<select id="findList" resultType="YsMyScore" >
+		SELECT 
+			<include refid="ysMyScoreColumns"/>
+		FROM ys_my_score a
+		<include refid="ysMyScoreJoins"/>
+		<where>
+			
+			<if test="id != null and id != ''">
+				AND a.id = #{id}
+			</if>
+			<if test="user != null and user.id != null and user.id != ''">
+				AND a.user_id = #{userid}
+			</if>
+			<if test="papId != null and papId != ''">
+				AND a.pap_id = #{papId}
+			</if>
+			<if test="testTime != null and testTime != ''">
+				AND a.test_time = #{testTime}
+			</if>
+			<if test="answerTime != null and answerTime != ''">
+				AND a.answer_time = #{answerTime}
+			</if>
+			<if test="testType != null and testType != ''">
+				AND a.test_type = #{testType}
+			</if>
+			<if test="totalScore != null and totalScore != ''">
+				AND a.total_score = #{totalScore}
+			</if>
+			<if test="pathScore != null and pathScore != ''">
+				AND a.path_score = #{pathScore}
+			</if>
+			<if test="resultScore != null and resultScore != ''">
+				AND a.result_score = #{resultScore}
+			</if>
+			<if test="errorNumber != null and errorNumber != ''">
+				AND a.error_number = #{errorNumber}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="YsMyScore" >
+		SELECT 
+			<include refid="ysMyScoreColumns"/>
+		FROM ys_my_score a
+		<include refid="ysMyScoreJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO ys_my_score(
+			
+			user_id,
+			pap_id,
+			test_time,
+			answer_time,
+			test_type,
+			total_score,
+			path_score,
+			result_score,
+			error_number
+		) VALUES (
+			
+			#{userid},
+			#{papId},
+			#{testTime},
+			#{answerTime},
+			#{testType},
+			#{totalScore},
+			#{pathScore},
+			#{resultScore},
+			#{errorNumber}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE ys_my_score SET 	
+			user_id = #{userid},
+			pap_id = #{papId},
+			test_time = #{testTime},
+			answer_time = #{answerTime},
+			test_type = #{testType},
+			total_score = #{totalScore},
+			path_score = #{pathScore},
+			result_score = #{resultScore},
+			error_number = #{errorNumber}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM ys_my_score
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE ys_my_score SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="YsMyScore" statementType="STATEMENT">
+		select * FROM ys_my_score  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

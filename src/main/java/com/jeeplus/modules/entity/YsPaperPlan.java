@@ -1,0 +1,183 @@
+/**
+ * Copyright &copy; 2015-2020 <a href="http://www.jeeplus.org/">JeePlus</a> All rights reserved.
+ */
+package com.jeeplus.modules.entity;
+
+
+import com.jeeplus.common.persistence.DataEntity;
+import com.jeeplus.common.utils.StringUtils;
+
+/**
+ * 出卷计划Entity
+ * @author wdy
+ * @version 2018-05-24
+ */
+public class YsPaperPlan extends DataEntity<YsPaperPlan> {
+	
+	private static final long serialVersionUID = 1L;
+	private String planName;		// 出卷计划名称
+	
+	private String singleData;		// 单选题 条件
+	private String manyData;		// 多选题条件
+	private String judgeData;		// 判断题条件
+	private String fillData;		// 填空题条件
+	private String simpleData;		// 简答题条件
+	private Integer totalScore;		// 总分
+	private Integer singleScore;  // 单选总分 
+	private Integer manyScore;	  // 多选总分
+	private Integer judgeScore;	  // 判断总分
+	private Integer fillScore;	 // 填空总分
+	private Integer simpleScore;  // 简答总分
+	private Integer majorId;  // 专业类型外键
+	private Integer papId;  // 试卷外键
+	
+	public YsPaperPlan() {
+		super();
+	}
+
+	public YsPaperPlan(String id){
+		super(id);
+	}
+
+	public String getPlanName() {
+		return planName;
+	}
+
+	public void setPlanName(String planName) {
+		this.planName = planName;
+	}
+
+	public String getSingleData() {
+		return singleData;
+	}
+
+	public void setSingleData(String singleData) {
+		this.singleData = singleData;
+	}
+
+	public String getManyData() {
+		return manyData;
+	}
+
+	public void setManyData(String manyData) {
+		this.manyData = manyData;
+	}
+
+	public String getJudgeData() {
+		return judgeData;
+	}
+
+	public void setJudgeData(String judgeData) {
+		this.judgeData = judgeData;
+	}
+
+	public String getFillData() {
+		return fillData;
+	}
+
+	public void setFillData(String fillData) {
+		this.fillData = fillData;
+	}
+
+	public String getSimpleData() {
+		return simpleData;
+	}
+
+	public void setSimpleData(String simpleData) {
+		this.simpleData = simpleData;
+	}
+
+	public Integer getTotalScore() {
+		totalScore = 0;
+		totalScore = getSingleScore() + getManyScore() + getJudgeScore() + getFillScore() + getSimpleScore();
+		return totalScore;
+	}
+
+	public void setTotalScore(Integer totalScore) {
+		this.totalScore = totalScore;
+	}
+
+	public Integer getSingleScore() {
+		singleScore = 0;
+		if(StringUtils.isNotBlank(this.singleData)){
+			String[] split = this.singleData.split(",");
+			singleScore = Integer.valueOf(split[0])*Integer.valueOf(split[2]);
+		}
+		return singleScore;
+	}
+
+	public void setSingleScore(Integer singleScore) {
+		this.singleScore = singleScore;
+	}
+
+	public Integer getManyScore() {
+		manyScore = 0;
+		if(StringUtils.isNotBlank(this.manyData)){
+			String[] split = this.manyData.split(",");
+			manyScore = Integer.valueOf(split[0])*Integer.valueOf(split[2]);		
+				}
+		return manyScore;
+	}
+
+	public void setManyScore(Integer manyScore) {
+		this.manyScore = manyScore;
+	}
+
+	public Integer getJudgeScore() {
+		judgeScore = 0;
+		if(StringUtils.isNotBlank(this.judgeData)){
+			String[] split = this.judgeData.split(",");
+			judgeScore = Integer.valueOf(split[0])*Integer.valueOf(split[2]);
+		}
+		return judgeScore;
+	}
+
+	public void setJudgeScore(Integer judgeScore) {
+		this.judgeScore = judgeScore;
+	}
+
+	public Integer getFillScore() {
+		fillScore = 0;
+		if(StringUtils.isNotBlank(this.fillData)){
+			String[] split = this.fillData.split(",");
+			fillScore = Integer.valueOf(split[0])*Integer.valueOf(split[2]);
+		}
+		return fillScore;
+	}
+
+	public void setFillScore(Integer fillScore) {
+		this.fillScore = fillScore;
+	}
+
+	public Integer getSimpleScore() {
+		simpleScore = 0;
+		if(StringUtils.isNotBlank(this.simpleData)){
+			String[] split = this.simpleData.split(",");
+			simpleScore = Integer.valueOf(split[0])*Integer.valueOf(split[2]);
+		}
+		return simpleScore;
+	}
+
+	public void setSimpleScore(Integer simpleScore) {
+		this.simpleScore = simpleScore;
+	}
+
+	public Integer getMajorId() {
+		return majorId;
+	}
+
+	public void setMajorId(Integer majorId) {
+		this.majorId = majorId;
+	}
+
+	public Integer getPapId() {
+		return papId;
+	}
+
+	public void setPapId(Integer papId) {
+		this.papId = papId;
+	}
+	
+	
+	
+}

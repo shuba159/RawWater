@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.course.dao.addcoursetwo.YsCourseTwoDao">
+    
+	<sql id="ysCourseColumns">
+		a.id AS "id",
+		a.course_name AS "courseName",
+		a.dep_id AS "depId",
+		a.course_type AS "courseType",
+		a.address AS "address",
+		a.course_class AS "courseClass",
+		a.describe_a AS "describeA",
+		a.create_id AS "createId",
+		a.create_time AS "createTime",
+		a.good_number AS "goodNumber",
+		a.click_number AS "clickNumber",
+		a.major_type AS "majorType"
+	</sql>
+	
+	<sql id="ysCourseJoins">
+	</sql>
+	
+    
+	<select id="get" resultType="YsCourse" >
+		SELECT 
+			<include refid="ysCourseColumns"/>
+		FROM ys_course a
+		<include refid="ysCourseJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="YsCourse" >
+		SELECT 
+			<include refid="ysCourseColumns"/>
+		FROM ys_course a
+		<include refid="ysCourseJoins"/>
+		<where>
+			
+			<if test="courseName != null and courseName != ''">
+				AND a.course_name = #{courseName}
+			</if>
+			<if test="courseType != null and courseType != ''">
+				AND a.course_type = #{courseType}
+			</if>
+			<if test="courseClass != null and courseClass != ''">
+				AND a.course_class = #{courseClass}
+			</if>
+			<if test="majorType != null and majorType != ''">
+				AND a.major_type = #{majorType}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="YsCourse" >
+		SELECT 
+			<include refid="ysCourseColumns"/>
+		FROM ys_course a
+		<include refid="ysCourseJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO ys_course(
+			course_name,
+			dep_id,
+			course_type,
+			address,
+			course_class,
+			describe_a,
+			create_id,
+			create_time,
+			good_number,
+			click_number,
+			major_type
+		) VALUES (
+			#{courseName},
+			#{depId},
+			#{courseType},
+			#{address},
+			#{courseClass},
+			#{describeA},
+			#{createId},
+			#{createTime},
+			#{goodNumber},
+			#{clickNumber},
+			#{majorType}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE ys_course SET 	
+			course_name = #{courseName},
+			dep_id = #{depId},
+			course_type = #{courseType},
+			address = #{address},
+			course_class = #{courseClass},
+			describe_a = #{describeA},
+			create_id = #{createId},
+			create_time = #{createTime},
+			good_number = #{goodNumber},
+			click_number = #{clickNumber},
+			major_type = #{majorType}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM ys_course
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE ys_course SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="YsCourse" statementType="STATEMENT">
+		select * FROM ys_course  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

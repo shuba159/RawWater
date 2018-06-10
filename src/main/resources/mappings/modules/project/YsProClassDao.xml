@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.project.dao.YsProClassDao">
+    
+	<sql id="ysProClassColumns">
+		a.id AS "id",
+		a.class_name AS "className"
+	</sql>
+	
+	<sql id="ysProClassJoins">
+	</sql>
+	
+    
+	<select id="get" resultType="YsProClass" >
+		SELECT 
+			<include refid="ysProClassColumns"/>
+		FROM ys_pro_class a
+		<include refid="ysProClassJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="YsProClass" >
+		SELECT 
+			<include refid="ysProClassColumns"/>
+		FROM ys_pro_class a
+		<include refid="ysProClassJoins"/>
+		<where>
+			
+			<if test="id != null and id != ''">
+				AND a.id = #{id}
+			</if>
+			<if test="className != null and className != ''">
+				AND a.class_name = #{className}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="YsProClass" >
+		SELECT 
+			<include refid="ysProClassColumns"/>
+		FROM ys_pro_class a
+		<include refid="ysProClassJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO ys_pro_class(
+			class_name
+		) VALUES (
+			#{className}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE ys_pro_class SET 	
+			class_name = #{className}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM ys_pro_class
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE ys_pro_class SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="YsProClass" statementType="STATEMENT">
+		select * FROM ys_pro_class  where ${propertyName} = '${value}'
+	</select>
+	
+	<select id="findName" resultType="YsProClass" >
+		SELECT 
+			<include refid="ysProClassColumns"/>
+		FROM ys_pro_class a
+		<include refid="ysProClassJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	
+</mapper>

@@ -1,0 +1,135 @@
+package com.jeeplus.modules.project.utils;
+
+import java.text.SimpleDateFormat;
+import java.util.List;
+
+import com.jeeplus.common.config.Global;
+import com.jeeplus.common.utils.StringUtils;
+import com.jeeplus.modules.entity.YsCourse;
+import com.jeeplus.modules.entity.YsPaperPlan;
+import com.jeeplus.modules.project.entity.YsPaperPlanPojo;
+
+public class ProjectMothed {
+	
+	/**
+	 *  YsPaperPlanPojo 转为 ysPaperPlan
+	 */
+	public static YsPaperPlan PojoToPlan(YsPaperPlanPojo YsPaperPlanPojo, YsPaperPlan ysPaperPlan){
+		String singleQueNum = YsPaperPlanPojo.getSingleQueNum();
+		String singleDif = YsPaperPlanPojo.getSingleDif();
+		String singleScore = YsPaperPlanPojo.getSingleScore();
+		if(StringUtils.isNotBlank(singleQueNum) && StringUtils.isNotBlank(singleDif) && StringUtils.isNotBlank(singleScore)){
+			ysPaperPlan.setSingleData(singleQueNum+","+singleDif+","+singleScore);
+		}
+		String manyQueNum = YsPaperPlanPojo.getManyQueNum();
+		String manyDif = YsPaperPlanPojo.getManyDif();
+		String manyScore = YsPaperPlanPojo.getManyScore();
+		if(StringUtils.isNotBlank(manyQueNum) && StringUtils.isNotBlank(manyDif) && StringUtils.isNotBlank(manyScore)){
+			ysPaperPlan.setManyData(manyQueNum+","+manyDif+","+manyScore);
+		}
+		String judgeQueNum = YsPaperPlanPojo.getJudgeQueNum();
+		String judgeDif = YsPaperPlanPojo.getJudgeDif();
+		String judgeScore = YsPaperPlanPojo.getJudgeScore();
+		if(StringUtils.isNotBlank(judgeQueNum) && StringUtils.isNotBlank(judgeDif) && StringUtils.isNotBlank(judgeScore)){
+			ysPaperPlan.setJudgeData(judgeQueNum+","+judgeDif+","+judgeScore);		
+		}
+		String fillQueNum = YsPaperPlanPojo.getFillQueNum();
+		String fillDif = YsPaperPlanPojo.getFillDif();
+		String fillScore = YsPaperPlanPojo.getFillScore();
+		if(StringUtils.isNotBlank(fillQueNum) && StringUtils.isNotBlank(fillDif) && StringUtils.isNotBlank(fillScore)){
+			ysPaperPlan.setFillData(fillQueNum+","+fillDif+","+fillScore);
+		}
+		String simpleQueNum = YsPaperPlanPojo.getSimpleQueNum();
+		String simpleDif = YsPaperPlanPojo.getSimpleDif();
+		String simpleScore = YsPaperPlanPojo.getSimpleScore();
+		if(StringUtils.isNotBlank(simpleQueNum) && StringUtils.isNotBlank(simpleDif) && StringUtils.isNotBlank(simpleScore)){
+			ysPaperPlan.setSimpleData(simpleQueNum+","+simpleDif+","+simpleScore);
+		}
+		
+		return ysPaperPlan;
+	}
+	
+	public static YsPaperPlanPojo PlanToPojo(YsPaperPlanPojo ysPaperPlanPojo, YsPaperPlan ysPaperPlan){
+		ysPaperPlanPojo.setPlanName(ysPaperPlan.getPlanName());
+		ysPaperPlanPojo.setMajorId(ysPaperPlan.getMajorId());
+		
+		String singleData = ysPaperPlan.getSingleData();
+		String manyData = ysPaperPlan.getManyData();
+		String judgeData = ysPaperPlan.getJudgeData();
+		String fillData = ysPaperPlan.getFillData();
+		String simpleData = ysPaperPlan.getSimpleData();
+		if(StringUtils.isNotBlank(singleData)){
+			String[] split = singleData.split(",");
+			ysPaperPlanPojo.setSingleQueNum(split[0]);
+			ysPaperPlanPojo.setSingleDif(split[1]);
+			ysPaperPlanPojo.setSingleScore(split[2]);
+		}
+		if(StringUtils.isNotBlank(manyData)){
+			String[] split = manyData.split(",");
+			ysPaperPlanPojo.setManyQueNum(split[0]);
+			ysPaperPlanPojo.setManyDif(split[1]);
+			ysPaperPlanPojo.setManyScore(split[2]);
+		}
+		if(StringUtils.isNotBlank(judgeData)){
+			String[] split = judgeData.split(",");
+			ysPaperPlanPojo.setJudgeQueNum(split[0]);
+			ysPaperPlanPojo.setJudgeDif(split[1]);
+			ysPaperPlanPojo.setJudgeScore(split[2]);
+		}
+		if(StringUtils.isNotBlank(fillData)){
+			String[] split = fillData.split(",");
+			ysPaperPlanPojo.setFillQueNum(split[0]);
+			ysPaperPlanPojo.setFillDif(split[1]);
+			ysPaperPlanPojo.setFillScore(split[2]);
+		}
+		if(StringUtils.isNotBlank(simpleData)){
+			String[] split = simpleData.split(",");
+			ysPaperPlanPojo.setSimpleQueNum(split[0]);
+			ysPaperPlanPojo.setSimpleDif(split[1]);
+			ysPaperPlanPojo.setSimpleScore(split[2]);
+		}
+		
+		return ysPaperPlanPojo;
+	}
+	
+	/**
+	 *  YsPaperPlanPojo 转为 ysPaperPlan
+	 */
+	public static boolean planIsEmpty(YsPaperPlan ysPaperPlan){
+		if(StringUtils.isEmpty(ysPaperPlan.getSingleData()) 
+				&& StringUtils.isEmpty(ysPaperPlan.getManyData())
+				&& StringUtils.isEmpty(ysPaperPlan.getJudgeData())
+				&& StringUtils.isEmpty(ysPaperPlan.getFillData())
+				&& StringUtils.isEmpty(ysPaperPlan.getSimpleData())){
+			return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * 拼接课件vid
+	 */
+	public static String getCourseDiv(List<YsCourse> ysCourseList, String url){
+		String course_list = "";
+		course_list = "<div class='wrapper wrapper-content'><table id='contentTable' class='table table-striped table-bordered table-hover table-condensed dataTables-example dataTable'> <thead><tr><th> <input type='checkbox' class='i-checks'></th><th  class='sort-column id'>编号</th><th  class='sort-column courseName'>课件名称</th><th  class='sort-column courseType'>课件类型</th><th  class='sort-column courseClass'>课件分类</th><th  class='sort-column createId'>创建人</th><th  class='sort-column createTime'>最后更新</th><th>操作</th></tr></thead><tbody>";
+		for (int i = 0; i < ysCourseList.size(); i++) {
+			YsCourse ysCourse = ysCourseList.get(i);
+			String courseClass = (ysCourse.getCourseClass()==1? "静态":"动态");
+			SimpleDateFormat ft =  new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			String format = ft.format(ysCourse.getUpdateTime());
+			String ysMajorName = FnsUtils.getYsMajor(ysCourse.getCourseType());
+			String userName = FnsUtils.getUserByUserId(ysCourse.getCreateId());
+			
+			course_list = course_list + "<tr class='course_tr'>" + 
+					"<td> <input type='checkbox' id="+ysCourse.getId()+" class='i-checks'></td>" + 
+					"<td>"+(i+1)+"</td><td>"+ysCourse.getCourseName()+"</td><td>"+ysMajorName+"</td>" + 
+					"<td>"+courseClass+"</td><td>"+userName+"</td>" + 
+					"<td>"+format+"</td>" + 
+					"<td><a href='#' onclick='openDialog(\"编辑学习资料管理\", \""+url+"/course/addcourse/ysCourse/form?id="+ysCourse.getId()+"\",\"800px\", \"500px\")' class='btn btn-success btn-xs' ><i class='fa fa-edit'></i> 编辑</a>" + "&nbsp;&nbsp;" + 
+					"<button onclick='del_course(this)' value='"+ysCourse.getId()+"' class='btn btn-danger btn-xs'><i class='fa fa-trash'></i> 删除</button></td></tr>";
+		}
+		course_list = course_list + "</tbody></table></div>";
+		return course_list;
+	}
+	
+}

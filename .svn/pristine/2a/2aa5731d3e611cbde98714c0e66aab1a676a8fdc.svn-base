@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.project.dao.YsPaperDao">
+    
+	<sql id="ysPaperColumns">
+		a.id AS "id",
+		a.pap_name AS "papName",
+		a.total_score AS "totalScore",
+		a.pass_score AS "passScore",
+		a.pap_type AS "papType",
+		a.create_id AS "createId",
+		a.create_time AS "createTime",
+		a.update_time AS "updateTime",
+		a.single_score AS "singleScore",
+		a.many_score AS "manyScore",
+		a.judge_score AS "judgeScore",
+		a.fill_score AS "fillScore",
+		a.simple_score AS "simpleScore",
+		a.question_describe AS "questionDescribe"
+	</sql>
+	
+	<sql id="ysPaperJoins">
+	</sql>
+	
+    
+	<select id="get" resultType="YsPaper" >
+		SELECT 
+			<include refid="ysPaperColumns"/>
+		FROM ys_paper a
+		<include refid="ysPaperJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="YsPaper" >
+		SELECT 
+			<include refid="ysPaperColumns"/>
+		FROM ys_paper a
+		<include refid="ysPaperJoins"/>
+		<where>
+			
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="YsPaper" >
+		SELECT 
+			<include refid="ysPaperColumns"/>
+		FROM ys_paper a
+		<include refid="ysPaperJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO ys_paper(
+			pap_name,
+			total_score,
+			pass_score,
+			pap_type,
+			create_id,
+			create_time,
+			update_time,
+			single_score,
+			many_score,
+			judge_score,
+			fill_score,
+			simple_score,
+			question_describe
+		) VALUES (
+			#{papName},
+			#{totalScore},
+			#{passScore},
+			#{papType},
+			#{createId},
+			#{createTime},
+			#{updateTime},
+			#{singleScore},
+			#{manyScore},
+			#{judgeScore},
+			#{fillScore},
+			#{simpleScore},
+			#{questionDescribe}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE ys_paper SET 	
+			pap_name = #{papName},
+			total_score = #{totalScore},
+			pass_score = #{passScore},
+			pap_type = #{papType},
+			create_id = #{createId},
+			create_time = #{createTime},
+			update_time = #{updateTime},
+			single_score = #{singleScore},
+			many_score = #{manyScore},
+			judge_score = #{judgeScore},
+			fill_score = #{fillScore},
+			simple_score = #{simpleScore},
+			question_describe = #{questionDescribe}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM ys_paper
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE ys_paper SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="YsPaper" statementType="STATEMENT">
+		select * FROM ys_paper  where ${propertyName} = '${value}'
+	</select>
+	
+	<!-- 根据试卷id查询试题 -->
+	<select id="findQuesionList" parameterType="map" resultType="YsQuestions" >
+		SELECT 
+			a.id AS "id",
+			a.question_type AS "questionType",
+			a.level AS "level",
+			a.describes AS "describes",
+			a.options AS "options",
+			b.que_score AS queScore
+		FROM ys_questions a  
+		JOIN ys_pap_que b on b.que_id = a.id   
+		WHERE b.pap_id = #{papId}
+		
+	</select>
+	
+	<!-- 插入试卷并返回id -->
+	<insert id="saveYsPaper" useGeneratedKeys="true" keyProperty="id" parameterType="YsPaper">
+		INSERT INTO ys_paper(
+			pap_name,
+			total_score,
+			pass_score,
+			pap_type,
+			create_id,
+			create_time,
+			update_time
+		) VALUES (
+			#{papName},
+			#{totalScore},
+			#{passScore},
+			#{papType},
+			#{createId},
+			#{createTime},
+			#{updateTime}
+		)
+	</insert>
+	
+	<!-- 试卷试题 插入中间表 -->
+	<insert id="saveQueToPap">
+		INSERT INTO ys_pap_que(
+			pap_id, 
+			que_id,
+			que_score
+		) VALUES 
+			<foreach collection="ysQuesionList" item="item" separator=",">
+				(#{papId}, #{item.id}, #{item.queScore})
+			</foreach>
+	</insert>
+	
+	
+</mapper>

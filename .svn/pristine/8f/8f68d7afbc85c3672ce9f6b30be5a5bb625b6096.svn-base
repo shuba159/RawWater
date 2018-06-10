@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.mien.dao.YsMienDao">
+    
+	<sql id="ysMienColumns">
+		a.id AS "id",
+		a.mien_title AS "mienTitle",
+		a.mien_time AS "mienTime",
+		a.student_name AS "studentName",
+		a.teacher_name AS "teacherName",
+		a.content AS "content",
+		a.publish_state AS "publishState",
+		a.dep_id AS "depId"
+	</sql>
+	
+	<sql id="ysMienJoins">
+	</sql>
+	
+    <select id="selectAllHomePage" resultType="YsMien" >
+    select 
+   <include refid="ysMienColumns"/>
+    from ys_mien a
+  </select>
+	<select id="get" resultType="YsMien" >
+		SELECT 
+			<include refid="ysMienColumns"/>
+		FROM ys_mien a
+		<include refid="ysMienJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="YsMien" >
+		SELECT 
+			<include refid="ysMienColumns"/>
+		FROM ys_mien a
+		<include refid="ysMienJoins"/>
+		<where>
+			
+			<if test="id != null and id != ''">
+				AND a.id = #{id}
+			</if>
+			<if test="mienTitle != null and mienTitle != ''">
+				AND a.mien_title = #{mienTitle}
+			</if>
+			<if test="mienTime != null and mienTime != ''">
+				AND a.mien_time = #{mienTime}
+			</if>
+			<if test="studentName != null and studentName != ''">
+				AND a.student_name = #{studentName}
+			</if>
+			<if test="teacherName != null and teacherName != ''">
+				AND a.teacher_name = #{teacherName}
+			</if>
+			<if test="content != null and content != ''">
+				AND a.content = #{content}
+			</if>
+			<if test="publishState != null and publishState != ''">
+				AND a.publish_state = #{publishState}
+			</if>
+			<if test="depId != null and depId != ''">
+				AND a.dep_id = #{depId}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="YsMien" >
+		SELECT 
+			<include refid="ysMienColumns"/>
+		FROM ys_mien a
+		<include refid="ysMienJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO ys_mien(
+			id,
+			mien_title,
+			mien_time,
+			student_name,
+			teacher_name,
+			content,
+			publish_state,
+			dep_id
+		) VALUES (
+			#{id},
+			#{mienTitle},
+			#{mienTime},
+			#{studentName},
+			#{teacherName},
+			#{content},
+			#{publishState},
+			#{depId}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE ys_mien SET 	
+			mien_title = #{mienTitle},
+			mien_time = #{mienTime},
+			student_name = #{studentName},
+			teacher_name = #{teacherName},
+			content = #{content},
+			publish_state = #{publishState},
+			dep_id = #{depId}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM ys_mien
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE ys_mien SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="YsMien" statementType="STATEMENT">
+		select * FROM ys_mien  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

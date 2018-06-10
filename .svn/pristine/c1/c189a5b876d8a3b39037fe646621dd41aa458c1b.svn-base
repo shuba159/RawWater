@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.project.dao.YsDepartmentDao">
+    
+	<sql id="ysDepartmentColumns">
+		a.id AS "id",
+		a.dep_name AS "depName"  
+	</sql>
+	
+	<sql id="ysDepartmentJoins">
+	</sql>
+	<select id="selectAllYsDepartment" resultType="YsDepartment">
+	select <include refid="ysDepartmentColumns"/> from
+		ys_department a
+	</select>
+    
+	<select id="get" resultType="YsDepartment" >
+		SELECT 
+			<include refid="ysDepartmentColumns"/>
+		FROM ys_department a
+		<include refid="ysDepartmentJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="YsDepartment" >
+		SELECT 
+			<include refid="ysDepartmentColumns"/>
+		FROM ys_department a
+		<include refid="ysDepartmentJoins"/>
+		<where>
+			a.del_flag = 0  
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	
+	<select id="findAllList" resultType="YsDepartment" >
+		SELECT 
+			<include refid="ysDepartmentColumns"/>
+		FROM ys_department a
+		<include refid="ysDepartmentJoins"/>
+		<where>
+			a.del_flag = 0  
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO ys_department(
+			id,
+			dep_name  
+		) VALUES (
+			#{id},
+			#{depName}  
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE ys_department SET 	
+			dep_name = #{depName}  
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		UPDATE ys_department SET 
+			del_flag = 1
+		WHERE id = #{id}  
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE ys_department SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="YsDepartment" statementType="STATEMENT">
+		select * FROM ys_department  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

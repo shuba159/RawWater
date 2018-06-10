@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.project.dao.YsTestScoreDao">
+   
+    <select id="idSelectYsTest" resultType="YsTest">
+        SELECT ys_test.* FROM ys_test JOIN ys_test_score ON ys_test_score.pap_id = ys_test.Id WHERE ys_test_score.pap_id = #{id}
+    </select>
+    
+    <select id="depNameSelect" resultType="java.lang.String">
+        SELECT ys_department.dep_name FROM ys_department WHERE ys_department.Id = #{id}
+    </select>
+    
+    <select id="testNameSelectScoIdPapId" resultType="java.lang.String">
+        SELECT ys_test.test_name from ys_test_score JOIN ys_test ON ys_test_score.pap_id = ys_test.Id WHERE ys_test_score.pap_id  = #{papid} AND ys_test_score.Id = #{scoreid}
+    </select>
+    
+    <select id="userNameSelectId" resultType="java.lang.Integer">
+    	SELECT ys_user.Id FROM ys_user WHERE ys_user.user_name = #{str}
+    </select>
+    
+    <select id="depNameSelectDepId" resultType="java.lang.Integer">
+        SELECT ys_department.Id FROM ys_department WHERE ys_department.dep_name= #{str}
+    </select>
+    
+    <select id="idSelectUserName" resultType="java.lang.String">
+        SELECT ys_user.user_name FROM ys_user WHERE ys_user.Id=#{id}
+    </select>
+    
+	<sql id="ysTestScoreColumns">
+		a.id AS "id",
+		a.pro_id AS "proId",
+		a.pap_id AS "papId",
+		a.user_id AS "userId",
+		a.dep_id AS "depId",
+		a.score AS "score",
+		a.commit_time AS "commitTime",
+		a.evaluate_time AS "evaluateTime",
+		a.evaluate_name AS "evaluateName",
+		a.ispath AS "ispath"
+	</sql>
+	
+	<sql id="ysTestScoreJoins">
+	</sql>
+	
+    
+	<select id="get" resultType="YsTestScore" >
+		SELECT 
+			<include refid="ysTestScoreColumns"/>
+		FROM ys_test_score a
+		<include refid="ysTestScoreJoins"/>
+		WHERE a.id = #{id} AND a.pap_id = #{testId}
+	</select>
+	
+	<select id="findList" resultType="YsTestScore" >
+		SELECT 
+			<include refid="ysTestScoreColumns"/>
+		FROM ys_test_score a
+		<include refid="ysTestScoreJoins"/>
+		<where>
+			
+			a.pap_id = #{testId}
+			
+			<if test="userId != null and userId != ''">
+				AND a.user_id = #{userId}
+			</if>
+			<if test="depId != null and depId != ''">
+				AND a.dep_id = #{depId}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="YsTestScore" >
+		SELECT 
+			<include refid="ysTestScoreColumns"/>
+		FROM ys_test_score a
+		<include refid="ysTestScoreJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO ys_test_score(
+			id,
+			pro_id,
+			pap_id,
+			user_id,
+			dep_id,
+			score,
+			commit_time,
+			evaluate_time,
+			evaluate_name,
+			ispath
+		) VALUES (
+			#{id},
+			#{proId},
+			#{papId},
+			#{userId},
+			#{depId},
+			#{score},
+			#{commitTime},
+			#{evaluateTime},
+			#{evaluateName},
+			#{ispath}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE ys_test_score SET 	
+			pro_id = #{proId},
+			pap_id = #{papId},
+			user_id = #{userId},
+			dep_id = #{depId},
+			score = #{score},
+			commit_time = #{commitTime},
+			evaluate_time = #{evaluateTime},
+			evaluate_name = #{evaluateName},
+			ispath = #{ispath}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM ys_test_score
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE ys_test_score SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="YsTestScore" statementType="STATEMENT">
+		select * FROM ys_test_score  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

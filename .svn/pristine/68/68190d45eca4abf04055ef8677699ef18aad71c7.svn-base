@@ -1,0 +1,45 @@
+<%@ page contentType="text/html;charset=UTF-8" %>
+<%@ include file="/webpage/include/taglib.jsp"%>
+<html>
+<head>
+	<title>项目管理</title>
+	<meta name="decorator" content="default"/>
+	<script type="text/javascript">
+		$(document).ready(function() {
+			
+			//时间插件
+			//外部js调用
+	        laydate({
+	            elem: '#sTime', //目标元素。由于laydate.js封装了一个轻量级的选择器引擎，因此elem还允许你传入class、tag但必须按照这种方式 '#id .class'
+	            event: 'focus' //响应事件。如果没有传入event，则按照默认的click
+	        });
+	        laydate({
+	            elem: '#eTime', //目标元素。由于laydate.js封装了一个轻量级的选择器引擎，因此elem还允许你传入class、tag但必须按照这种方式 '#id .class'
+	            event: 'focus' //响应事件。如果没有传入event，则按照默认的click
+	        });
+			
+		});
+	</script>
+</head>
+<body class="gray-bg">
+	<br>
+	<br>
+	<br>
+	<form:form modelAttribute="ysEvaluate" >
+		<div >&nbsp;&nbsp;&nbsp;学习时间:<fmt:formatDate value="${ysEvaluate.startTime }" pattern="yyyy-MM-dd"/> 
+		&nbsp;~&nbsp;<fmt:formatDate value="${ysEvaluate.endTime }" pattern="yyyy-MM-dd"/></div>
+		<div >&nbsp;&nbsp;&nbsp;应学人数:${ysEvaluate.totalCount }</div>
+	
+		<div >&nbsp;&nbsp;&nbsp;正在学习:${ysEvaluate.studyingCount }</div> 
+		<div >&nbsp;&nbsp;&nbsp;参与评价:${ysEvaluate.evaluateCount }</div>
+	
+	</form:form>
+	<br>
+	<br>
+	<div >&nbsp;&nbsp;&nbsp;非常好     ${ysEvaluate.evaluateList[4] } 人评价</div>
+	<div >&nbsp;&nbsp;&nbsp;好             ${ysEvaluate.evaluateList[3] } 人评价</div>
+	<div >&nbsp;&nbsp;&nbsp;一般         ${ysEvaluate.evaluateList[2] } 人评价</div>
+	<div >&nbsp;&nbsp;&nbsp;差             ${ysEvaluate.evaluateList[1] } 人评价</div>
+	<div >&nbsp;&nbsp;&nbsp;很差         ${ysEvaluate.evaluateList[0] } 人评价</div>
+</body>
+</html>

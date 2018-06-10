@@ -1,0 +1,149 @@
+/**
+ * Copyright &copy; 2015-2020 <a href="http://www.jeeplus.org/">JeePlus</a> All rights reserved.
+ */
+package com.jeeplus.modules.project.web;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import org.springframework.web.bind.annotation.ResponseBody;
+
+
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+
+import com.jeeplus.common.config.Global;
+import com.jeeplus.common.persistence.Page;
+import com.jeeplus.common.utils.MyBeanUtils;
+import com.jeeplus.common.utils.StringUtils;
+import com.jeeplus.common.web.BaseController;
+import com.jeeplus.modules.entity.YsDepartment;
+import com.jeeplus.modules.entity.YsUser;
+import com.jeeplus.modules.project.dao.YsDepartmentDao;
+import com.jeeplus.modules.project.service.YsDepartmentService;
+
+/**
+ * 部门Controller
+ * @author wdy
+ * @version 2018-05-23
+ */
+@Controller
+@RequestMapping(value = "${adminPath}/department/ysDepartment")
+public class YsDepartmentController extends BaseController {
+
+	@Autowired
+	private YsDepartmentService ysDepartmentService;
+	@Autowired
+	private YsDepartmentDao ysDepartmentDao;
+	@ModelAttribute
+	public YsDepartment get(@RequestParam(required=false) String id) {
+		YsDepartment entity = null;
+		if (StringUtils.isNotBlank(id)){
+			entity = ysDepartmentService.get(id);
+		}
+		if (entity == null){
+			entity = new YsDepartment();
+		}
+		return entity;
+	}
+	@ResponseBody
+	@RequestMapping(value = "/selectAllYsDepartment")
+	public Map<String, Object> selectAllYsDepartment( HttpServletRequest request,
+		
+			HttpServletResponse response) {
+	
+		
+		List<YsDepartment>  listdepa= ysDepartmentDao.selectAllYsDepartment();
+		Map<String, Object> loginInfo = new HashMap<>();
+		if (listdepa != null) {
+			loginInfo.put("code", 200);
+			loginInfo.put("msg", "获取成功");	
+			loginInfo.put("data", listdepa);	
+			return loginInfo;
+		}else{
+			loginInfo.put("code", 400);
+			loginInfo.put("msg", "获取失败");	
+			return loginInfo;
+			
+		}
+	}
+	/**
+	 * 部门列表页面
+	 */
+//	@RequiresPermissions("department:ysDepartment:list")
+	@RequestMapping(value = {"list", ""})
+	public String list(YsDepartment ysDepartment, HttpServletRequest request, HttpServletResponse response, Model model) {
+		Page<YsDepartment> page = ysDepartmentService.findPage(new Page<YsDepartment>(request, response), ysDepartment); 
+		model.addAttribute("page", page);
+		return "modules/project/ysDepartmentList";
+	}
+
+	/**
+	 * 查看，增加，编辑部门表单页面
+	 */
+//	@RequiresPermissions(value={"department:ysDepartment:view","department:ysDepartment:add","department:ysDepartment:edit"},logical=Logical.OR)
+	@RequestMapping(value = "form")
+	public String form(YsDepartment ysDepartment, Model model) {
+		model.addAttribute("ysDepartment", ysDepartment);
+		return "modules/project/ysDepartmentForm";
+	}
+
+	/**
+	 * 保存部门
+	 */
+//	@RequiresPermissions(value={"department:ysDepartment:add","department:ysDepartment:edit"},logical=Logical.OR)
+	@RequestMapping(value = "save")
+	public String save(YsDepartment ysDepartment, Model model, RedirectAttributes redirectAttributes) throws Exception{
+		if (!beanValidator(model, ysDepartment)){
+			return form(ysDepartment, model);
+		}
+		if(!ysDepartment.getIsNewRecord()){//编辑表单保存
+			YsDepartment t = ysDepartmentService.get(ysDepartment.getId());//从数据库取出记录的值
+			MyBeanUtils.copyBeanNotNull2Bean(ysDepartment, t);//将编辑表单中的非NULL值覆盖数据库记录中的值
+			ysDepartmentService.save(t);//保存
+		}else{//新增表单保存
+			ysDepartmentService.save(ysDepartment);//保存
+		}
+		addMessage(redirectAttributes, "保存部门成功");
+		return "redirect:"+Global.getAdminPath()+"/department/ysDepartment/?repage";
+	}
+	
+	/**
+	 * 删除部门
+	 */
+//	@RequiresPermissions("department:ysDepartment:del")
+	@RequestMapping(value = "delete")
+	public String delete(YsDepartment ysDepartment, RedirectAttributes redirectAttributes) {
+		ysDepartmentService.delete(ysDepartment);
+		addMessage(redirectAttributes, "删除部门成功");
+		return "redirect:"+Global.getAdminPath()+"/department/ysDepartment/?repage";
+	}
+	
+	/**
+	 * 批量删除部门
+	 */
+// 	@RequiresPermissions("department:ysDepartment:del")
+	@RequestMapping(value = "deleteAll")
+	public String deleteAll(String ids, RedirectAttributes redirectAttributes) {
+		String idArray[] =ids.split(",");
+		for(String id : idArray){
+			ysDepartmentService.delete(ysDepartmentService.get(id));
+		}
+		addMessage(redirectAttributes, "删除部门成功");
+		return "redirect:"+Global.getAdminPath()+"/department/ysDepartment/?repage";
+	}
+
+
+}

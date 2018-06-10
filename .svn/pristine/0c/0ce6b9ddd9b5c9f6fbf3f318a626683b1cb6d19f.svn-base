@@ -1,0 +1,140 @@
+/**
+ * Copyright &copy; 2015-2020 <a href="http://www.jeeplus.org/">JeePlus</a> All rights reserved.
+ */
+package com.jeeplus.modules.project.web;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import com.jeeplus.common.config.Global;
+import com.jeeplus.common.persistence.Page;
+import com.jeeplus.common.utils.MyBeanUtils;
+import com.jeeplus.common.utils.StringUtils;
+import com.jeeplus.common.web.BaseController;
+import com.jeeplus.modules.entity.YsPaperPlan;
+import com.jeeplus.modules.project.entity.YsPaperPlanPojo;
+import com.jeeplus.modules.project.service.YsPaperPlanService;
+import com.jeeplus.modules.project.utils.ProjectMothed;
+
+/**
+ * 出卷计划Controller
+ * @author wdy
+ * @version 2018-05-24
+ */
+@Controller
+@RequestMapping(value = "${adminPath}/plan/ysPaperPlan")
+public class YsPaperPlanController extends BaseController {
+
+	@Autowired
+	private YsPaperPlanService ysPaperPlanService;
+	
+	@ModelAttribute
+	public YsPaperPlan get(@RequestParam(required=false) String id) {
+		YsPaperPlan entity = null;
+		if (StringUtils.isNotBlank(id)){
+			entity = ysPaperPlanService.get(id);
+		}
+		if (entity == null){
+			entity = new YsPaperPlan();
+		}
+		return entity;
+	}
+	
+	/**
+	 * 出卷计划列表页面
+	 */
+//	@RequiresPermissions("plan:ysPaperPlan:list")
+	@RequestMapping(value = {"list", ""})
+	public String list(YsPaperPlan ysPaperPlan, HttpServletRequest request, HttpServletResponse response, Model model) {
+		Page<YsPaperPlan> page = ysPaperPlanService.findPage(new Page<YsPaperPlan>(request, response), ysPaperPlan); 
+		model.addAttribute("page", page);
+		return "modules/project/ysPaperPlanList";
+	}
+
+	/**
+	 * 查看，增加，编辑出卷计划表单页面
+	 */
+//	@RequiresPermissions(value={"plan:ysPaperPlan:view","plan:ysPaperPlan:add","plan:ysPaperPlan:edit"},logical=Logical.OR)
+	@RequestMapping(value = "form")
+	public String form(YsPaperPlan ysPaperPlan, Model model) {
+		YsPaperPlanPojo ysPaperPlanPojo = new YsPaperPlanPojo();
+		ysPaperPlanPojo = ProjectMothed.PlanToPojo(ysPaperPlanPojo, ysPaperPlan);
+		model.addAttribute("ysPaperPlanPojo", ysPaperPlanPojo);
+		model.addAttribute("ysPaperPlan", ysPaperPlan);
+		return "modules/project/ysPaperPlanForm";
+	}
+	
+	/**
+	 * 查看 
+	 */
+	@RequestMapping(value = "view")
+	public String view(YsPaperPlan ysPaperPlan, HttpServletRequest request) {
+		YsPaperPlanPojo ysPaperPlanPojo = new YsPaperPlanPojo();
+		ysPaperPlanPojo = ProjectMothed.PlanToPojo(ysPaperPlanPojo, ysPaperPlan);
+		request.setAttribute("ysPaperPlanPojo", ysPaperPlanPojo);
+		request.setAttribute("ysPaperPlan", ysPaperPlan);
+		return "modules/project/ysPaperPlanView";
+	}
+
+	/**
+	 * 保存出卷计划
+	 */
+//	@RequiresPermissions(value={"plan:ysPaperPlan:add","plan:ysPaperPlan:edit"},logical=Logical.OR)
+	@RequestMapping(value = "save")
+	public String save(YsPaperPlanPojo ysPaperPlanPojo, YsPaperPlan ysPaperPlan, Model model, RedirectAttributes redirectAttributes) throws Exception{
+		
+		if (!beanValidator(model, ysPaperPlan)){
+			return form(ysPaperPlan, model);
+		}
+		if(!ysPaperPlan.getIsNewRecord()){//编辑表单保存
+			YsPaperPlan t = ysPaperPlanService.get(ysPaperPlan.getId());//从数据库取出记录的值
+			MyBeanUtils.copyBeanNotNull2Bean(ysPaperPlan, t);//将编辑表单中的非NULL值覆盖数据库记录中的值
+			ysPaperPlanService.save(t);//保存
+		}else{//新增表单保存
+			// poje与entity传参
+			ysPaperPlan = ProjectMothed.PojoToPlan(ysPaperPlanPojo, ysPaperPlan);
+			// 判断ysPaperPlan是否有试题数据
+			if(ProjectMothed.planIsEmpty(ysPaperPlan)){
+				addMessage(redirectAttributes, "保存出卷计划失败 请补全计划内容");
+				return "redirect:"+Global.getAdminPath()+"/plan/ysPaperPlan/?repage";
+			}
+			ysPaperPlanService.save(ysPaperPlan);//保存
+		}
+		addMessage(redirectAttributes, "保存出卷计划成功");
+		return "redirect:"+Global.getAdminPath()+"/plan/ysPaperPlan/?repage";
+	}
+	
+	/**
+	 * 删除出卷计划
+	 */
+//	@RequiresPermissions("plan:ysPaperPlan:del")
+	@RequestMapping(value = "delete")
+	public String delete(YsPaperPlan ysPaperPlan, RedirectAttributes redirectAttributes) {
+		ysPaperPlanService.delete(ysPaperPlan);
+		addMessage(redirectAttributes, "删除出卷计划成功");
+		return "redirect:"+Global.getAdminPath()+"/plan/ysPaperPlan/?repage";
+	}
+	
+	/**
+	 * 批量删除出卷计划
+	 */
+//	@RequiresPermissions("plan:ysPaperPlan:del")
+	@RequestMapping(value = "deleteAll")
+	public String deleteAll(String ids, RedirectAttributes redirectAttributes) {
+		String idArray[] =ids.split(",");
+		for(String id : idArray){
+			ysPaperPlanService.delete(ysPaperPlanService.get(id));
+		}
+		addMessage(redirectAttributes, "删除出卷计划成功");
+		return "redirect:"+Global.getAdminPath()+"/plan/ysPaperPlan/?repage";
+	}
+
+}

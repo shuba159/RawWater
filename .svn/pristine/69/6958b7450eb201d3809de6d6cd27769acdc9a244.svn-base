@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.project.dao.YsUserDao">
+    
+	<sql id="ysUserColumns">
+		a.id AS "id",
+		a.user_name AS "userName",
+		a.full_name AS "fullName",
+		a.gender AS "gender",
+		a.email AS "email",
+		a.entry_date AS "entryDate",
+		a.mobile AS "mobile",
+		a.role AS "role",
+		a.dep_id AS "depId"
+	</sql>
+	
+	<sql id="ysUserJoins">
+	</sql>
+	
+    
+	<select id="get" resultType="YsUser" >
+		SELECT 
+			<include refid="ysUserColumns"/>
+		FROM ys_user a
+		<include refid="ysUserJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	<select id="login" resultType="YsUser" >
+  	 select 
+   <include refid="ysUserColumns"/>
+    from ys_user a
+    where a.user_name = #{0,jdbcType=VARCHAR} and  a.user_pwd = #{1,jdbcType=VARCHAR} 
+  </select>
+  <select id="selectByPrimaryKey" resultType="YsUser" parameterType="java.lang.Integer" >
+    select 
+    <include refid="ysUserColumns"/>
+    from ys_user a
+    where a.Id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="selectAll" resultType="YsUser" >
+    select   <include refid="ysUserColumns"/>
+    from ys_user
+  </select>
+	
+	<select id="findList" resultType="YsUser">
+		SELECT 
+			<include refid="ysUserColumns"/> 
+		FROM ys_user a
+		<include refid="ysUserJoins"/>
+		<where>
+			
+			<if test="id != null and id != ''">
+				AND a.id = #{id}
+			</if>
+			<if test="depId != null and depId != ''">
+				AND a.dep_id = #{depId}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="YsUser" >
+		SELECT 
+			<include refid="ysUserColumns"/>
+		FROM ys_user a
+		<include refid="ysUserJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO ys_user(
+			id,
+			user_name,
+			full_name,
+			gender,
+			email,
+			entry_date,
+			mobile,
+			role,
+			dep_id
+		) VALUES (
+			#{id},
+			#{userName},
+			#{fullName},
+			#{gender},
+			#{email},
+			#{entryDate},
+			#{mobile},
+			#{role},
+			#{depId}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE ys_user SET 	
+			user_name = #{userName},
+			full_name = #{fullName},
+			gender = #{gender},
+			email = #{email},
+			entry_date = #{entryDate},
+			mobile = #{mobile},
+			role = #{role},
+			dep_id = #{depId}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM ys_user
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE ys_user SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="YsUser" statementType="STATEMENT">
+		select * FROM ys_user  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

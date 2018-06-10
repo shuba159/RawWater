@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.project.dao.YsUserPapAnswerDao">
+    
+	<select id="papIdUserIdSelectAll" resultType="com.jeeplus.modules.entity.YsUserPapAnswer">
+	    SELECT 
+	    	a.id AS id, 
+	    	a.pap_id AS papId, 
+	    	a.que_id AS queId, 
+	    	a.user_id AS userId, 
+	    	a.answer AS answer  
+	    FROM ys_user_pap_answer a     
+	    WHERE a.pap_id = #{papId} AND a.user_id = #{userId}
+	</select>
+	
+	<select id="idSelectYsQuestions" resultType="com.jeeplus.modules.entity.YsQuestions">
+	    SELECT  
+	   a.id AS "id", 
+		a.question_type AS "questionType", 
+		a.level AS "level", 
+		a.question_class AS "questionClass", 
+		a.question_state AS "questionState", 
+		a.ispath AS "ispath", 
+		a.dep_id AS "depId", 
+		a.major_type AS "majorType", 
+		a.update_time AS "updateTime", 
+		a.create_id AS "createId", 
+		a.rule_one AS "ruleOne", 
+		a.rule_two AS "ruleTwo", 
+		a.rule_three AS "ruleThree", 
+		a.describes AS "describes", 
+		a.answer AS "answer", 
+		a.options AS "options", 
+		a.analysis AS "analysis" 
+	    FROM ys_questions a   
+	    WHERE id=#{id};
+	</select>
+	
+	<select id="papidAndQueidSelectScore" resultType="java.lang.Integer">
+	    SELECT a.que_score 
+	    FROM ys_pap_que a 
+	    WHERE a.pap_id = #{papId} AND a.que_id = #{queId} 
+	</select>
+
+    <update id="updateScore">
+        UPDATE ys_test_score a  
+        SET a.score = #{score}  
+        WHERE a.pap_id = #{papId} AND a.user_id = #{userId}
+    </update>
+    
+    <select id="idSelectYsTestAll" resultType="com.jeeplus.modules.project.entity.IsEvaAndNotEva">
+    SELECT 
+		a.is_eva AS "isEva",  
+		a.not_eva AS "notEva" 
+		FROM ys_test a 
+		WHERE a.Id = #{papId2} 
+    </select>
+    
+    <update id="idUpdateTest">
+        UPDATE  
+            ys_test a 
+        SET  
+            a.is_eva = #{isEva} , a.not_eva =#{notEva} 
+        WHERE  
+            a.Id = #{id}
+    </update>
+    
+</mapper>

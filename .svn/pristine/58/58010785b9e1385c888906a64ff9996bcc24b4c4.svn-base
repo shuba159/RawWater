@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.project.dao.YsProPaperDao">
+    
+	<sql id="ysProPaperColumns">
+		a.id AS "id",
+		a.test_name AS "testName",
+		a.describes AS "describes",
+		a.start_time AS "startTime",
+		a.end_time AS "endTime",
+		a.test_number AS "testNumber",
+		a.paper_state AS "paperState",
+		a.test_time AS "testTime",
+		a.test_score AS "testScore",
+		a.option_data AS "optionData",
+		a.pap_class_id AS "papClassId",
+		a.dep_id AS "depId",
+		a.pro_id AS "proId",
+		a.is_eva AS "isEva",
+		a.not_eva AS "notEva",
+		a.pass_score AS "passScore"
+	</sql>
+	
+	<sql id="ysProPaperJoins">
+	</sql>
+	
+    
+	<select id="get" resultType="YsProPaper" >
+		SELECT 
+			<include refid="ysProPaperColumns"/>
+		FROM ys_pro_paper a
+		<include refid="ysProPaperJoins"/>
+		WHERE a.id = #{id} AND a.del_flag = 0
+	</select>
+	
+	<select id="findList" resultType="YsProPaper" >
+		SELECT 
+			<include refid="ysProPaperColumns"/>
+		FROM ys_pro_paper a
+		<include refid="ysProPaperJoins"/>
+		<where>
+			a.del_flag = 0
+			<if test="id != null and id != ''">
+				AND a.id = #{id}
+			</if>
+			<if test="proId != null and proId != ''">
+				AND a.pro_id = #{proId}
+			</if>
+			<if test="testName != null and testName != ''">
+				AND a.test_name = #{testName}
+			</if>
+			<if test="depId != null and depId != ''">
+				AND a.dep_id = #{depId}
+			</if>
+			<if test="testNumber != null and testNumber != ''">
+				AND a.test_number = #{testNumber}
+			</if>
+			<if test="startTime != null and startTime != ''">
+				AND a.start_time >= #{startTime}
+			</if>
+			<if test="endTime != null and endTime != ''">
+				AND #{endTime} >= a.end_time
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="YsProPaper" >
+		SELECT 
+			<include refid="ysProPaperColumns"/>
+		FROM ys_pro_paper a
+		<include refid="ysProPaperJoins"/>
+		<where>
+			a.del_flag = 0
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO ys_pro_paper(
+			id,
+			test_name,
+			describes,
+			start_time,
+			end_time,
+			test_number,
+			paper_state,
+			test_time,
+			test_score,
+			option_data,
+			pap_class_id,
+			dep_id,
+			pro_id,
+			is_eva,
+			not_eva,
+			pass_score
+		) VALUES (
+			#{id},
+			#{testName},
+			#{describes},
+			#{startTime},
+			#{endTime},
+			#{testNumber},
+			#{paperState},
+			#{testTime},
+			#{testScore},
+			#{optionData},
+			#{papClassId},
+			#{depId},
+			#{proId},
+			#{isEva},
+			#{notEva},
+			#{passScore}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE ys_pro_paper SET 	
+			test_name = #{testName},
+			describes = #{describes},
+			start_time = #{startTime},
+			end_time = #{endTime},
+			test_number = #{testNumber},
+			paper_state = #{paperState},
+			test_time = #{testTime},
+			test_score = #{testScore},
+			option_data = #{optionData},
+			pap_class_id = #{papClassId},
+			dep_id = #{depId},
+			pro_id = #{proId},
+			is_eva = #{isEva},
+			not_eva = #{notEva},
+			pass_score = #{passScore}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		UPDATE ys_pro_paper SET 
+			del_flag = 1
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE ys_pro_paper SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="YsProPaper" statementType="STATEMENT">
+		select * FROM ys_pro_paper  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

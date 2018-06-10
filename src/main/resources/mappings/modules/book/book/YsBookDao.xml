@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.book.dao.book.YsBookDao">
+  
+	<sql id="ysBookColumns">
+		a.id AS "id",
+		a.book_name AS "bookName",
+		a.publish_time AS "publishTime",
+		a.content AS "content",
+		a.publish_state AS "publishState",
+		a.dep_id AS "depId"
+	</sql>
+	
+	<sql id="ysBookJoins">
+	</sql>
+	<select id="selectAllHomePage" resultType="YsBook"  >
+    select 
+    <include refid="ysBookColumns"/> 
+    from ys_book  a where publish_state=1 limit 0,4
+  </select>
+    
+	<select id="get" resultType="YsBook" >
+		SELECT 
+			<include refid="ysBookColumns"/>
+		FROM ys_book a
+		<include refid="ysBookJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="YsBook" >
+		SELECT 
+			<include refid="ysBookColumns"/>
+		FROM ys_book a
+		<include refid="ysBookJoins"/>
+		<where>
+			
+			<if test="id != null and id != ''">
+				AND a.id = #{id}
+			</if>
+			<if test="bookName != null and bookName != ''">
+				AND a.book_name = #{bookName}
+			</if>
+			<if test="publishTime != null and publishTime != ''">
+				AND a.publish_time = #{publishTime}
+			</if>
+			<if test="content != null and content != ''">
+				AND a.content = #{content}
+			</if>
+			<if test="publishState != null and publishState != ''">
+				AND a.publish_state = #{publishState}
+			</if>
+			<if test="depId != null and depId != ''">
+				AND a.dep_id = #{depId}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+<!-- 	<select id="selectAll" resultMap="YsBook" >
+    select * from ys_book  where publish_state=1 limit 0,4
+  </select> -->
+	<select id="findAllList" resultType="YsBook" >
+		SELECT 
+			<include refid="ysBookColumns"/>
+		FROM ys_book a
+		<include refid="ysBookJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO ys_book(
+			id,
+			book_name,
+			publish_time,
+			content,
+			publish_state,
+			dep_id
+		) VALUES (
+			#{id},
+			#{bookName},
+			#{publishTime},
+			#{content},
+			#{publishState},
+			#{depId}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE ys_book SET 	
+			book_name = #{bookName},
+			publish_time = #{publishTime},
+			content = #{content},
+			publish_state = #{publishState},
+			dep_id = #{depId}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM ys_book
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE ys_book SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="YsBook" statementType="STATEMENT">
+		select * FROM ys_book  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

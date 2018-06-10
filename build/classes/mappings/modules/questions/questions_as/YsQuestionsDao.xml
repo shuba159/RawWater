@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.questions.dao.questions_as.YsQuestionsDao">
+    
+	<select id="majorTypeSelectQues"  resultType="java.lang.String" >
+        SELECT ys_major.major_name FROM ys_questions JOIN ys_major on ys_questions.major_type = ys_major.id WHERE ys_questions.major_type=#{aa} AND ys_questions.Id=#{bb}  
+    </select>
+	
+	<sql id="ysQuestionsColumns">
+		a.id AS "id",
+		a.question_type AS "questionType",
+		a.level AS "level",
+		a.question_class AS "questionClass",
+		a.question_state AS "questionState",
+		a.ispath AS "ispath",
+		a.dep_id AS "depId",
+		a.major_type AS "majorType",
+		a.update_time AS "updateTime",
+		a.create_id AS "createId",
+		a.rule_one AS "ruleOne",
+		a.rule_two AS "ruleTwo",
+		a.rule_three AS "ruleThree",
+		a.describes AS "describes",
+		a.answer AS "answer",
+		a.options AS "options",
+		a.analysis AS "analysis"
+	</sql>
+	
+	<sql id="ysQuestionsJoins">
+	</sql>
+	
+    
+	<select id="get" resultType="YsQuestions" >
+		SELECT 
+			<include refid="ysQuestionsColumns"/>
+		FROM ys_questions a
+		<include refid="ysQuestionsJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="YsQuestions" >
+		SELECT 
+			<include refid="ysQuestionsColumns"/>
+		FROM ys_questions a
+		<include refid="ysQuestionsJoins"/>
+		<where>
+			
+			<if test="questionType != null and questionType != ''">
+				AND a.question_type = #{questionType}
+			</if>
+			<if test="level != null and level != ''">
+				AND a.level = #{level}
+			</if>
+			<if test="questionClass != null and questionClass != ''">
+				AND a.question_class = #{questionClass}
+			</if>
+			<if test="questionState != null and questionState != ''">
+				AND a.question_state = #{questionState}
+			</if>
+			<if test="ispath != null and ispath != ''">
+				AND a.ispath = #{ispath}
+			</if>
+			<if test="depId != null and depId != ''">
+				AND a.dep_id = #{depId}
+			</if>
+			<if test="majorType != null and majorType != ''">
+				AND a.major_type = #{majorType}
+			</if>
+			<if test="createId != null and createId != ''">
+				AND a.create_id = #{createId}
+			</if>
+			<if test="updateTime != null and updateTime != '' and updateTime2 != null and updateTime2 != ''">
+				AND a.update_time > #{updateTime} AND  #{updateTime2} > a.update_time 
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="YsQuestions" >
+		SELECT 
+			<include refid="ysQuestionsColumns"/>
+		FROM ys_questions a
+		<include refid="ysQuestionsJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO ys_questions(
+<!-- 			id, -->
+			question_type,
+			level,
+			question_class,
+			question_state,
+			ispath,
+			dep_id,
+			major_type,
+			update_time,
+			create_id,
+			rule_one,
+			rule_two,
+			rule_three,
+			describes,
+			answer,
+			options,
+			analysis
+		) VALUES (
+<!-- 			#{id}, -->
+			#{questionType},
+			#{level},
+			#{questionClass},
+			#{questionState},
+			#{ispath},
+			#{depId},
+			#{majorType},
+			#{updateTime},
+			#{createId},
+			#{ruleOne},
+			#{ruleTwo},
+			#{ruleThree},
+			#{describes},
+			#{answer},
+			#{options},
+			#{analysis}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE ys_questions SET 	
+			question_type = #{questionType},
+			level = #{level},
+			question_class = #{questionClass},
+			question_state = #{questionState},
+			ispath = #{ispath},
+			dep_id = #{depId},
+			major_type = #{majorType},
+			update_time = #{updateTime},
+			create_id = #{createId},
+			rule_one = #{ruleOne},
+			rule_two = #{ruleTwo},
+			rule_three = #{ruleThree},
+			describes = #{describes},
+			answer = #{answer},
+			options = #{options},
+			analysis = #{analysis}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM ys_questions
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE ys_questions SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="YsQuestions" statementType="STATEMENT">
+		select * FROM ys_questions  where ${propertyName} = '${value}'
+	</select>
+	
+	<!-- 获取试题总量 -->
+	<select id="findTotalNum" resultType="int" >
+		SELECT 
+			count(a.id)
+		FROM ys_questions a 
+	</select>
+	
+	
+</mapper>
